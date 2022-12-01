@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { sum, max, sortNumbers } from '../utils/arrays';
-
+import { splitLines } from '../utils/strings';
 
 /* The Elves take turns writing down the number of Calories contained by the
  * various meals, snacks, rations, etc. that they've brought with them, one
@@ -10,11 +10,14 @@ import { sum, max, sortNumbers } from '../utils/arrays';
  * https://adventofcode.com/2022/day/1
  */
 let puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
-let elves = puzzleInput.split('\n\n');
+let elves = splitLines(puzzleInput, '\n\n');
 
 
 function countCalories(elve: string): number {
-    let linesAsNumbers: number[] = elve.split('\n').map(Number);
+    /* The Elves take turns writing down the number of Calories contained
+     * by the various meals, snacks, rations, etc. that they've brought with
+     * them, one item per line. */
+    let linesAsNumbers: number[] = splitLines(elve).map(Number);
     return sum(linesAsNumbers);
 }
 
