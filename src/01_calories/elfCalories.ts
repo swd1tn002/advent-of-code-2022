@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { sum, max, sortNumbers } from '../utils/arrays';
-import { splitLines } from '../utils/strings';
+import { splitLines, splitNumberMatrix } from '../utils/strings';
 
 /* The Elves take turns writing down the number of Calories contained by the
  * various meals, snacks, rations, etc. that they've brought with them, one
@@ -10,27 +10,14 @@ import { splitLines } from '../utils/strings';
  * https://adventofcode.com/2022/day/1
  */
 let puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
-let elves = splitLines(puzzleInput, '\n\n');
-
-/**
- * The Elves take turns writing down the number of Calories contained
- * by the various meals, snacks, rations, etc. that they've brought with
- * them, one item per line.
- *
- * @param elf multiline string containing the meals
- * @returns number of calories
- */
-function countCalories(elf: string): number {
-    let linesAsNumbers: number[] = splitLines(elf).map(Number);
-    return sum(linesAsNumbers);
-}
+let mealsPerElf: number[][] = splitNumberMatrix(puzzleInput, '\n\n', '\n');
 
 /* Find the Elf carrying the most Calories. How many
  * total Calories is that Elf carrying? */
-let elfCalories: number[] = elves.map(countCalories);
-console.log('Max calories:', max(elfCalories));
+let calorieSums: number[] = mealsPerElf.map(meals => sum(meals));
+console.log('Max calories:', max(calorieSums));
 
 /* Find the top three Elves carrying the most Calories.
  * How many Calories are those Elves carrying in total? */
-let topThree = sortNumbers(elfCalories).slice(-3);
+let topThree = sortNumbers(calorieSums).slice(-3);
 console.log('Top three calories total:', sum(topThree));
