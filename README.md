@@ -10,6 +10,9 @@ All solutions are written in TypeScript.
 
 ```
 $ npm exec ts-node src/01_calories/elfCalories.ts
+
+Max calories: 71502
+Top three calories total: 208191
 ```
 
 Added utilities for handling puzzle input: 
