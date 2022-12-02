@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { sum, max, sortNumbers } from '../utils/arrays';
-import { splitLines, splitNumberMatrix } from '../utils/strings';
+import { splitNumberMatrix } from '../utils/strings';
 
 /* The Elves take turns writing down the number of Calories contained by the
  * various meals, snacks, rations, etc. that they've brought with them, one
