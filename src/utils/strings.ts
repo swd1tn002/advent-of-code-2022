@@ -1,9 +1,9 @@
 export function splitLines(text: string, delimiter: string = '\n'): string[] {
-    return text.split(delimiter);
+    return text.trim().split(delimiter);
 }
 
 export function splitStringMatrix(text: string, rowDelimiter: string = '\n', colDelimiter: string = ' '): string[][] {
-    return text.split(rowDelimiter).map(row => row.trim().split(colDelimiter));
+    return splitLines(text, rowDelimiter).map(row => row.trim().split(colDelimiter));
 }
 
 export function splitNumberMatrix(text: string, rowDelimiter: string = '\n', colDelimiter: string = ' '): number[][] {
