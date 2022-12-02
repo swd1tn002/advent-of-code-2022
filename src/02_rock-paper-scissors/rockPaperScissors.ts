@@ -1,3 +1,4 @@
+import Circle from '../utils/Circle';
 import { splitStringMatrix } from '../utils/strings';
 
 enum Shape {
@@ -77,23 +78,20 @@ function parseOutcome(text: string): Outcome {
  * Y means you need to end the round in a draw, and Z means you need to win"
  */
 export function getCounterMove(elf: Shape, outcome: Outcome): Shape {
-    let defeats = [Shape.ROCK, Shape.PAPER, Shape.SCISSORS];
-    let opponentIndex = defeats.indexOf(elf);
+    let defeats = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
 
     switch (outcome) {
         case Outcome.DRAW:
             return elf;
         case Outcome.WIN:
-            let next = (opponentIndex + 1) % defeats.length
-            return defeats[next];
+            return defeats.next(elf);
         case Outcome.LOSE:
-            let previous = (opponentIndex - 1 + defeats.length) % defeats.length
-            return defeats[previous];
+            return defeats.previous(elf);
         default:
             throw `Could not get move for ${elf} and ${outcome}`;
     }
-
 }
+
 /**
  * "The score for a single round is the score for the shape you selected plus the 
  * score for the outcome of the round."
@@ -108,12 +106,12 @@ export function getScoreForRound(round: [Shape, Shape]): number {
  * "Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock."
  */
 function getOutcome(elfMove: Shape, myMove: Shape): Outcome {
-    let defeats = [Shape.ROCK, Shape.PAPER, Shape.SCISSORS, Shape.ROCK];
+    let defeats = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
 
-    if (defeats[defeats.indexOf(elfMove) + 1] === myMove) {
+    if (defeats.next(elfMove) === myMove) {
         return Outcome.WIN;
     }
-    if (defeats[defeats.indexOf(myMove) + 1] === elfMove) {
+    if (defeats.previous(elfMove) === myMove) {
         return Outcome.LOSE;
     }
     return Outcome.DRAW;

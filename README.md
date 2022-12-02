@@ -2,7 +2,12 @@
 
 This repository contains my personal solutions to Advent of Code 2022. See https://adventofcode.com/2022.
 
-All solutions are written in TypeScript.
+All solutions are written in TypeScript. Get started with:
+
+```
+$ npm install
+$ npm test
+```
 
 ## [Day 1: Calorie Counting](https://adventofcode.com/2022/day/1)
 
@@ -17,8 +22,9 @@ Top three calories total: 208191
 
 Added utilities for handling puzzle input: 
 
-* 📄 [arrays.ts](./src/utils/arrays.ts)
-* 📄 [strings.ts](./src/utils/strings.ts)
+* 📄 [arrays.ts](./src/utils/arrays.ts), [arrays.test.ts](./src/utils/arrays.test.ts)
+* 📄 [strings.ts](./src/utils/strings.ts), [strings.test.ts](./src/utils/strings.test.ts)
+
 
 ## [Day 2: Rock Paper Scissors](https://adventofcode.com/2022/day/2)
 
@@ -33,4 +39,8 @@ Total score for part 2: 13726
 ```
 
 Used enums and quite many switch-case structures.
+
+Added Circle class for circular lists.
+
+* 📄 [Circle.ts](./src/utils/Circle.ts), [Circle.test.ts](./src/utils/Circle.test.ts)
 

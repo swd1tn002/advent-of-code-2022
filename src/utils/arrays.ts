@@ -13,3 +13,4 @@ export const min = (arr: number[]): number => arr.reduce((minimum, curr) => mini
 export function sortNumbers(arr: number[]): number[] {
     return [...arr].sort((a, b) => a - b);
 }
+
