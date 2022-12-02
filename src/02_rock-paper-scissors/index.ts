@@ -11,4 +11,4 @@ let firstStrategy = parseGameMoves(puzzleInput).map(getScoreForRound);
 console.log('Total score for part 1:', sum(firstStrategy)); // 12855
 
 let secondStrategy = parseGameStrategies(puzzleInput).map(getScoreForRound);
-console.log('Total score for part 2:', sum(secondStrategy)); // 13726s
+console.log('Total score for part 2:', sum(secondStrategy)); // 13726
