@@ -5,6 +5,10 @@ import { splitLines } from "../utils/strings";
 const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
 let rucksacks = splitLines(puzzleInput);
 
+/**
+ * "Each rucksack has two large compartments. A given rucksack always has
+ * the same number of items in each of its two compartments."
+ */
 function splitToCompartments(rucksack: string): [string[], string[]] {
     let items = rucksack.split('');
     let left = items.slice(0, items.length / 2);
@@ -18,12 +22,19 @@ function splitToBadgeGroups(rucksacks: string[]): string[][] {
     return splitToChunks(rucksacks, 3);
 }
 
+/**
+ * "Find the item type that appears in both compartments of each rucksack"
+ */
 function findCommonType([left, right]: [string[], string[]]): string {
     return left.find(item => right.includes(item)) ?? ' ';
 }
 
-function findBadgeGroupType(bags: string[]): string {
-    let [first, ...rest] = bags;
+/**
+ * "The only way to tell which item type is the right one is by finding 
+ * the one item type that is common between all three Elves in each group."
+ */
+function findBadgeGroupType(groupOfBags: string[]): string {
+    let [first, ...rest] = groupOfBags;
     return first.split('').find(character => rest.every(other => other.includes(character))) ?? ' ';
 }
 
@@ -34,14 +45,15 @@ function getPriority(itemType: string): number {
     return ' abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(itemType);
 }
 
-let compartments = rucksacks.map(splitToCompartments);
-console.log({ compartments });
+// part 1
+let rucksacksWithCompartments = rucksacks.map(splitToCompartments);
+console.log({ compartments: rucksacksWithCompartments });
 
-let commonItems = compartments.map(findCommonType);
-console.log({ commonItems });
+let commonItemsInCompartments = rucksacksWithCompartments.map(findCommonType);
+console.log({ commonItems: commonItemsInCompartments });
 
-let priorities = commonItems.map(getPriority);
-console.log('Part 1: sum of priorities is', sum(priorities)); // 7831
+let prioritiesOfCommonItems = commonItemsInCompartments.map(getPriority);
+console.log('Part 1: sum of priorities is', sum(prioritiesOfCommonItems)); // 7831
 
 
 // part 2
