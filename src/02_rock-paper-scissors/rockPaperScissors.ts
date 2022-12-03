@@ -1,11 +1,11 @@
 import Circle from '../utils/Circle';
 import { splitStringMatrix } from '../utils/strings';
 
-enum Shape {
+export enum Shape {
     ROCK = 1, PAPER = 2, SCISSORS = 3
 }
 
-enum Outcome {
+export enum Outcome {
     LOSE = 0, DRAW = 3, WIN = 6
 }
 
@@ -44,7 +44,7 @@ export function applyStrategy(elfMove: Shape, outcome: Outcome): [Shape, Shape] 
  * @param char A/X for Rock, B/Y for Paper, and C/Z for Scissors
  * @returns Shape for the given character
  */
-function parseShape(char: string): Shape {
+export function parseShape(char: string): Shape {
     switch (char) {
         case 'A':
         case 'X':
@@ -98,14 +98,14 @@ export function getCounterMove(elf: Shape, outcome: Outcome): Shape {
  */
 export function getScoreForRound(round: [Shape, Shape]): number {
     let [elfMove, myMove] = round;
-    let outcome = getOutcome(elfMove, myMove);
+    let outcome = getOutcome(myMove, elfMove);
     return outcome + myMove;
 }
 
 /**
  * "Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock."
  */
-function getOutcome(elfMove: Shape, myMove: Shape): Outcome {
+export function getOutcome(myMove: Shape, elfMove: Shape): Outcome {
     let defeats = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
 
     if (defeats.next(elfMove) === myMove) {
