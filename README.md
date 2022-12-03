@@ -30,6 +30,7 @@ Added utilities for handling puzzle input:
 
 * 📄 [src/02_rock-paper-scissors/index.ts](src/02_rock-paper-scissors/index.ts)
 * 📄 [src/02_rock-paper-scissors/rockPaperScissors.ts](src/02_rock-paper-scissors/rockPaperScissors.ts)
+* 📄 [src/02_rock-paper-scissors/rockPaperScissors.test.ts](src/02_rock-paper-scissors/rockPaperScissors.test.ts)
 
 ```
 $ npm exec ts-node src/02_rock-paper-scissors
@@ -46,10 +47,12 @@ Added Circle class for circular lists.
 
 ## [Day 3: Rucksack Reorganization](https://adventofcode.com/2022/day/3)
 
+* 📄 [src/03_rucksack/index.ts](./src/03_rucksack/index.ts)
 * 📄 [src/03_rucksack/rucksack.ts](./src/03_rucksack/rucksack.ts)
+* 📄 [src/03_rucksack/rucksack.test.ts](./src/03_rucksack/rucksack.test.ts)
 
 ```
-$ npm exec ts-node src/03_rucksack/rucksack.ts
+$ npm exec ts-node src/03_rucksack/
 
 Part 1: sum of priorities is 7831
 Part 2: sum of badge group priorities is 2683
