@@ -17,6 +17,6 @@ jobs:
       with:
         node-version: 18.x
         cache: 'npm'
-    - run: tsc --noEmit
     - run: npm ci
+    - run: tsc --noEmit
     - run: npm test
