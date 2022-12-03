@@ -44,3 +44,13 @@ Added Circle class for circular lists.
 
 * 📄 [Circle.ts](./src/utils/Circle.ts), [Circle.test.ts](./src/utils/Circle.test.ts)
 
+## [Day 3: Rucksack Reorganization](https://adventofcode.com/2022/day/3)
+
+* 📄 [src/03_rucksack/rucksack.ts](./src/03_rucksack/rucksack.ts)
+
+```
+$ npm exec ts-node src/03_rucksack/rucksack.ts
+
+Part 1: sum of priorities is 7831
+Part 2: sum of badge group priorities is 2683
+```

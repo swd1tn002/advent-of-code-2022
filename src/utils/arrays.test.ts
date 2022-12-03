@@ -1,6 +1,6 @@
 import { test, describe } from '@jest/globals';
 import { strict as assert } from 'assert';
-import { max, min, sortNumbers, sum } from './arrays';
+import { max, min, sortNumbers, splitToChunks, sum } from './arrays';
 
 describe('Array utilities', () => {
     test('Max returns largest item in array', () => {
@@ -24,5 +24,10 @@ describe('Array utilities', () => {
         let arr = [3, 1, 2];
 
         assert.deepEqual(sum(arr), 6);
+    });
+
+    test('Split array into even sized chunks', () => {
+        let chunks = splitToChunks([1, 2, 3, 4, 5, 6, 7, 8, 9], 3);
+        assert.deepEqual(chunks, [[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
     });
 });

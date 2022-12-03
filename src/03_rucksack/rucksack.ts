@@ -47,11 +47,7 @@ function getPriority(itemType: string): number {
 
 // part 1
 let rucksacksWithCompartments = rucksacks.map(splitToCompartments);
-console.log({ compartments: rucksacksWithCompartments });
-
 let commonItemsInCompartments = rucksacksWithCompartments.map(findCommonType);
-console.log({ commonItems: commonItemsInCompartments });
-
 let prioritiesOfCommonItems = commonItemsInCompartments.map(getPriority);
 console.log('Part 1: sum of priorities is', sum(prioritiesOfCommonItems)); // 7831
 
@@ -59,5 +55,4 @@ console.log('Part 1: sum of priorities is', sum(prioritiesOfCommonItems)); // 78
 // part 2
 let badgeGroups = splitToBadgeGroups(rucksacks);
 let badgeGroupTypes = badgeGroups.map(group => findBadgeGroupType(group));
-console.log({ badgeGroupTypes });
 console.log('Part 2: sum of badge group priorities is', sum(badgeGroupTypes.map(getPriority))); // 2683
