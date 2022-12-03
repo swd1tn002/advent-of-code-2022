@@ -14,3 +14,13 @@ export function sortNumbers(arr: number[]): number[] {
     return [...arr].sort((a, b) => a - b);
 }
 
+// https://stackoverflow.com/a/55435856
+function* chunks<T>(arr: T[], chunkSize: number): Generator<T[], void> {
+    for (let i = 0; i < arr.length; i += chunkSize) {
+        yield arr.slice(i, i + chunkSize);
+    }
+}
+
+export function splitToChunks<T>(arr: T[], chunkSize: number): T[][] {
+    return [...chunks(arr, chunkSize)];
+}
