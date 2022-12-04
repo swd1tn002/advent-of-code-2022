@@ -57,3 +57,15 @@ $ npm exec ts-node src/03_rucksack/
 Part 1: sum of priorities is 7831
 Part 2: sum of badge group priorities is 2683
 ```
+
+
+## [Day 4: Camp Cleanup](https://adventofcode.com/2022/day/4)
+
+* 📄 [src/04_camp-cleanup/index.ts](./src/04_camp-cleanup/index.ts)
+
+```
+$ npm exec ts-node src/04_camp-cleanup/
+
+Pairs where one fully contains the other:  534
+Pairs that overlap at all:  841
+```

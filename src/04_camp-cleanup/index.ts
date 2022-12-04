@@ -32,7 +32,7 @@ class Range {
 /**
  * "The Elves pair up and make a big list of the section assignments for each pair (your puzzle input)."
  */
-function parsePuzzleInput(puzzleInput): [Range, Range][] {
+function parsePuzzleInput(puzzleInput: string): [Range, Range][] {
     let inputMatrix: string[][] = splitStringMatrix(puzzleInput, '\n', ',');
 
     return inputMatrix.map(row => {
