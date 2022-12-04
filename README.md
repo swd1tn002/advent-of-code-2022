@@ -1,6 +1,6 @@
 # Advent of code 2022 [![Node.js CI](https://github.com/swd1tn002/advent-of-code-2022/actions/workflows/node.js.yml/badge.svg)](https://github.com/swd1tn002/advent-of-code-2022/actions/workflows/node.js.yml) [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/swd1tn002/advent-of-code-2022)
 
-This repository contains my personal solutions to Advent of Code 2022. See https://adventofcode.com/2022.
+This repository contains my personal solutions to [Advent of Code 2022](https://adventofcode.com/2022).
 
 All solutions are written in TypeScript. Get started with:
 
@@ -14,7 +14,7 @@ $ npm test
 * 📄 [src/01_calories/elfCalories.ts](src/01_calories/elfCalories.ts)
 
 ```
-$ npm exec ts-node src/01_calories/elfCalories.ts
+$ npx ts-node src/01_calories/elfCalories.ts
 
 Max calories: 71502
 Top three calories total: 208191
@@ -33,7 +33,7 @@ Added utilities for handling puzzle input:
 * 📄 [src/02_rock-paper-scissors/rockPaperScissors.test.ts](src/02_rock-paper-scissors/rockPaperScissors.test.ts)
 
 ```
-$ npm exec ts-node src/02_rock-paper-scissors
+$ npx ts-node src/02_rock-paper-scissors
 
 Total score for part 1: 12855
 Total score for part 2: 13726
@@ -52,7 +52,7 @@ Added Circle class for circular lists.
 * 📄 [src/03_rucksack/rucksack.test.ts](./src/03_rucksack/rucksack.test.ts)
 
 ```
-$ npm exec ts-node src/03_rucksack/
+$ npx ts-node src/03_rucksack/
 
 Part 1: sum of priorities is 7831
 Part 2: sum of badge group priorities is 2683
@@ -66,8 +66,9 @@ Until day 3, working in VS Code dev container was extremely slow due to WSL2 and
 * 📄 [src/04_camp-cleanup/index.ts](./src/04_camp-cleanup/index.ts)
 * 📄 [src/utils/Range.ts](./src/utils/Range.ts)
 * 📄 [src/utils/Range.test.ts](./src/utils/Range.test.ts)
+
 ```
-$ npm exec ts-node src/04_camp-cleanup/
+$ npx ts-node src/04_camp-cleanup/
 
 Pairs where one fully contains the other:  534
 Pairs that overlap at all:  841

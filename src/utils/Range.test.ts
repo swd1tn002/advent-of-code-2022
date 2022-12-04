@@ -37,7 +37,7 @@ describe('Number range', () => {
 
     test('Ranges can overlap at beginning, end or middle', () => {
         let left = new Range(100, 200);
-        let center = new Range(170, 280);
+        let center = new Range(160, 190);
         let right = new Range(150, 250);
 
         assert.ok(left.overlaps(right));

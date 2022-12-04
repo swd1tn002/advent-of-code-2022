@@ -24,7 +24,7 @@ export function parseGameMoves(puzzleInput: string): [Shape, Shape][] {
  */
 export function parseGameStrategies(puzzleInput: string): [Shape, Shape][] {
     const matrix = splitStringMatrix(puzzleInput);
-    return matrix.map(([s1, s2]) => applyStrategy(parseShape(s1), parseOutcome(s2)));
+    return matrix.map(([shape, outcome]) => applyStrategy(parseShape(shape), parseOutcome(outcome)));
 }
 
 /**
@@ -78,17 +78,17 @@ function parseOutcome(text: string): Outcome {
  * Y means you need to end the round in a draw, and Z means you need to win"
  */
 export function getCounterMove(elf: Shape, outcome: Outcome): Shape {
-    let defeats = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
+    let rockPaperScissors = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
 
     switch (outcome) {
         case Outcome.DRAW:
             return elf;
         case Outcome.WIN:
-            return defeats.next(elf);
+            return rockPaperScissors.next(elf);
         case Outcome.LOSE:
-            return defeats.previous(elf);
+            return rockPaperScissors.previous(elf);
         default:
-            throw `Could not get move for ${elf} and ${outcome}`;
+            throw `Could not get countermove for ${elf} and ${outcome}`;
     }
 }
 
@@ -106,13 +106,13 @@ export function getScoreForRound(round: [Shape, Shape]): number {
  * "Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock."
  */
 export function getOutcome(myMove: Shape, elfMove: Shape): Outcome {
-    let defeats = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
+    let rockPaperScissors = new Circle([Shape.ROCK, Shape.PAPER, Shape.SCISSORS]);
 
-    if (defeats.next(elfMove) === myMove) {
+    if (myMove === elfMove) {
+        return Outcome.DRAW;
+    }
+    if (rockPaperScissors.next(elfMove) === myMove) {
         return Outcome.WIN;
     }
-    if (defeats.previous(elfMove) === myMove) {
-        return Outcome.LOSE;
-    }
-    return Outcome.DRAW;
+    return Outcome.LOSE;
 }

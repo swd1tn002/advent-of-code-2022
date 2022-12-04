@@ -7,8 +7,8 @@ describe('Rucksack reorganization', () => {
     test('A rucksack always has the same number of items in each of its two compartments', () => {
         let [left, right] = splitToCompartments('vJrwpWtwJgWrhcsFMMfFFhFp');
 
-        assert.deepEqual(left, 'vJrwpWtwJgWr'.split(''));
-        assert.deepEqual(right, 'hcsFMMfFFhFp'.split(''));
+        assert.deepEqual(left, 'vJrwpWtwJgWr');
+        assert.deepEqual(right, 'hcsFMMfFFhFp');
     });
 
     test('Split elves into groups of three', () => {
@@ -18,7 +18,7 @@ describe('Rucksack reorganization', () => {
     });
 
     test('Both compartments have one item in common', () => {
-        let common = findCommonType(['PmmdzqPrV'.split(''), 'vPwwTWBwg'.split('')]);
+        let common = findCommonType('PmmdzqPrV', 'vPwwTWBwg');
 
         assert.equal(common, 'P');
     });

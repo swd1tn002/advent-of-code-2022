@@ -38,4 +38,5 @@ for (let [r1, r2] of pairs) {
         overlapCount++;
     }
 }
+
 console.log('Pairs that overlap at all: ', overlapCount); // 841
