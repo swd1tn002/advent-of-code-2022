@@ -58,6 +58,8 @@ Part 1: sum of priorities is 7831
 Part 2: sum of badge group priorities is 2683
 ```
 
+Until day 3, working in VS Code dev container was extremely slow due to WSL2 and NTFS issues: https://github.com/microsoft/WSL/issues/4197 / https://github.com/microsoft/WSL/issues/4515. I fixed the issue temporarily by moving `node_modules` outside of the NTFS volume and adding a symbolic link.
+
 
 ## [Day 4: Camp Cleanup](https://adventofcode.com/2022/day/4)
 
