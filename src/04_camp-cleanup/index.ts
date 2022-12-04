@@ -1,33 +1,6 @@
 import { readFileSync } from 'fs';
+import { Range } from '../utils/Range';
 import { splitStringMatrix } from '../utils/strings';
-
-class Range {
-    private start: number;
-    private end: number;
-
-    constructor(start: number, end: number) {
-        [this.start, this.end] = [start, end];
-    }
-
-    static parse(range: string) {
-        let [start, end] = range.split('-').map(Number);
-        return new Range(start, end);
-    }
-
-    contains(num: number): boolean {
-        return this.start <= num && num <= this.end;
-    }
-
-    fullyContains(other: Range): boolean {
-        return this.start <= other.start && other.end <= this.end;
-    }
-
-    overlaps(other: Range): boolean {
-        return this.fullyContains(other) || other.fullyContains(this) ||
-            this.contains(other.start) || this.contains(other.end) ||
-            other.contains(this.start) || other.contains(this.end)
-    }
-}
 
 /**
  * "The Elves pair up and make a big list of the section assignments for each pair (your puzzle input)."

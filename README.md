@@ -64,7 +64,8 @@ Until day 3, working in VS Code dev container was extremely slow due to WSL2 and
 ## [Day 4: Camp Cleanup](https://adventofcode.com/2022/day/4)
 
 * 📄 [src/04_camp-cleanup/index.ts](./src/04_camp-cleanup/index.ts)
-
+* 📄 [src/utils/Range.ts](./src/utils/Range.ts)
+* 📄 [src/utils/Range.test.ts](./src/utils/Range.test.ts)
 ```
 $ npm exec ts-node src/04_camp-cleanup/
 
