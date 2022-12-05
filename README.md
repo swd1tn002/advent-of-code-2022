@@ -73,3 +73,14 @@ $ npx ts-node src/04_camp-cleanup/
 Pairs where one fully contains the other:  534
 Pairs that overlap at all:  841
 ```
+
+## [Day 5: Supply Stacks](https://adventofcode.com/2022/day/5)
+
+* 📄 [src/05_supply-stacks/index.ts](./src/05_supply-stacks/index.ts)
+
+```
+$ npx ts-node src/05_supply-stacks/
+
+Part 1: ZRLJGSCTR
+Part 2: PRTTGRFPB
+```

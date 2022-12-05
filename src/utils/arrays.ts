@@ -4,6 +4,10 @@ export const max = (arr: number[]): number => arr.reduce((maximum, curr) => maxi
 
 export const min = (arr: number[]): number => arr.reduce((minimum, curr) => minimum < curr ? minimum : curr, arr[0]);
 
+export function last<T>(arr: T[]): T {
+    return arr[arr.length - 1];
+}
+
 /**
  * Sorts the given numbers in ascending order in a new array.
  *
