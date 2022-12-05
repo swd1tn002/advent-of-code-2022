@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { splitLines, notEmpty } from '../utils/strings';
+import { splitLines } from '../utils/strings';
 import { last } from '../utils/arrays';
 
 interface Move {
