@@ -84,3 +84,14 @@ $ npx ts-node src/05_supply-stacks/
 Part 1: ZRLJGSCTR
 Part 2: PRTTGRFPB
 ```
+
+## [Day 6: Tuning Trouble](https://adventofcode.com/2022/day/6)
+
+* 📄 [src/05_supply-stacks/index.ts](./src/05_supply-stacks/index.ts)
+
+```
+$ npx ts-node src/06_tuning-trouble/
+
+Part 1, end of message: 1766
+Part 2, start of message: 2383
+```
