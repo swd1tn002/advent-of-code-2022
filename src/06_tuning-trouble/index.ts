@@ -15,7 +15,7 @@ function findFirstSequenceOfDifferentChars(input: string, seqLength: number): nu
         }
     }
 
-    throw `Could not find a sequence of ${seqLength} different chars in message ${input}`;
+    throw new Error(`Could not find a sequence of ${seqLength} different chars in message ${input}`);
 }
 
 function findEndOfMessageMarker(message: string): number {

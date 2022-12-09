@@ -42,7 +42,7 @@ export class Position {
             case 'R':
                 return this.right();
             default:
-                throw `Unknown direction ${direction}`;
+                throw new Error(`Unknown direction ${direction}`);
         }
     }
 }

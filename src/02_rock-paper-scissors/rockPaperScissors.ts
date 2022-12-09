@@ -56,7 +56,7 @@ export function parseShape(char: string): Shape {
         case 'Z':
             return Shape.SCISSORS;
         default:
-            throw `invalid shape ${char}`;
+            throw new Error(`invalid shape ${char}`);
     }
 }
 
@@ -69,7 +69,7 @@ function parseOutcome(text: string): Outcome {
         case 'X': return Outcome.LOSE;
         case 'Y': return Outcome.DRAW;
         case 'Z': return Outcome.WIN;
-        default: throw `invalid outcome ${text}`;
+        default: throw new Error(`invalid outcome ${text}`);
     }
 }
 

@@ -27,7 +27,7 @@ export default class Circle<T> {
      */
     next(element: T): T {
         if (!this.content.includes(element)) {
-            throw `Array does not contain ${element}`;
+            throw new Error(`Array does not contain ${element}`);
         }
         let nextIndex = this.content.indexOf(element) + 1;
         return this.get(nextIndex);
@@ -40,7 +40,7 @@ export default class Circle<T> {
      */
     previous(element: T): T {
         if (!this.content.includes(element)) {
-            throw `Array does not contain ${element}`;
+            throw new Error(`Array does not contain ${element}`);
         }
         let previousIndex = this.content.indexOf(element) - 1;
         return this.get(previousIndex);
