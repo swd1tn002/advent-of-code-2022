@@ -52,7 +52,7 @@ Added Circle class for circular lists.
 * 📄 [src/03_rucksack/rucksack.test.ts](./src/03_rucksack/rucksack.test.ts)
 
 ```
-$ npx ts-node src/03_rucksack/
+$ npx ts-node src/03_rucksack
 
 Part 1: sum of priorities is 7831
 Part 2: sum of badge group priorities is 2683
@@ -68,7 +68,7 @@ Until day 3, working in VS Code dev container was extremely slow due to WSL2 and
 * 📄 [src/utils/Range.test.ts](./src/utils/Range.test.ts)
 
 ```
-$ npx ts-node src/04_camp-cleanup/
+$ npx ts-node src/04_camp-cleanup
 
 Pairs where one fully contains the other:  534
 Pairs that overlap at all:  841
@@ -79,7 +79,7 @@ Pairs that overlap at all:  841
 * 📄 [src/05_supply-stacks/index.ts](./src/05_supply-stacks/index.ts)
 
 ```
-$ npx ts-node src/05_supply-stacks/
+$ npx ts-node src/05_supply-stacks
 
 Part 1: ZRLJGSCTR
 Part 2: PRTTGRFPB
@@ -90,8 +90,22 @@ Part 2: PRTTGRFPB
 * 📄 [src/05_supply-stacks/index.ts](./src/05_supply-stacks/index.ts)
 
 ```
-$ npx ts-node src/06_tuning-trouble/
+$ npx ts-node src/06_tuning-trouble
 
 Part 1, end of message: 1766
 Part 2, start of message: 2383
+```
+
+
+
+## [Day 9: Rope Bridge](https://adventofcode.com/2022/day/9)
+
+* 📄 [src/09_rope-bridge/index.ts](./src/09_rope-bridge/index.ts)
+* 📄 [src/09_rope-bridge/Position.ts](./src/09_rope-bridge/Position.ts)
+
+```
+$ npx npx ts-node src/09_rope-bridge
+
+Part 1:  6269
+Part 2:  2557
 ```
