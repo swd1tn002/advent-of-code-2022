@@ -41,3 +41,10 @@ export function transpose<T>(matrix: T[][]): T[][] {
     })
     return rotated;
 }
+
+/**
+ * Returns a deep copy of the given matrix with each row reversed.
+ */
+export function reverseRows<T>(matrix: T[][]): T[][] {
+    return matrix.map(row => [...row].reverse());
+}

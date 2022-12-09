@@ -1,6 +1,6 @@
 import { test, describe } from '@jest/globals';
 import { strict as assert } from 'assert';
-import { last, max, min, sortNumbers, splitToChunks, sum, transpose } from './arrays';
+import { last, max, min, reverseRows, sortNumbers, splitToChunks, sum, transpose } from './arrays';
 
 describe('Array utilities', () => {
     test('Max returns largest item in array', () => {
@@ -43,5 +43,12 @@ describe('Array utilities', () => {
 
         let result = transpose(original);
         assert.deepEqual(result, [[1, 4], [2, 5], [3, 6]]);
+    });
+
+    test('ReverseRows creates a copy of a matrix with each row reversed', () => {
+        let original = [[1, 2, 3], [4, 5, 6]];
+
+        let result = reverseRows(original);
+        assert.deepEqual(result, [[3, 2, 1], [6, 5, 4]]);
     });
 });
