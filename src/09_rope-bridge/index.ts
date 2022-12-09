@@ -6,17 +6,6 @@ import { Position } from './Position';
 const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
 const seriesOfMotions: string[][] = splitStringMatrix(puzzleInput);
 
-/**
- * Limits the given number to +/- 1 or 0.
- */
-function maxOne(num: number): number {
-    if (num > 0) {
-        return 1;
-    } else if (num < 0) {
-        return -1;
-    }
-    return 0;
-}
 
 /**
  * "If the head is ever two steps directly up, down, left, or right from the tail,
@@ -28,17 +17,27 @@ function maxOne(num: number): number {
 function updateFollowersPosition(first: Position, second: Position): Position {
     let distY = first.y - second.y;
     let distX = first.x - second.x;
-    let adjacent = max([Math.abs(distY), Math.abs(distX)]) <= 1;
 
-    if (adjacent) {
+    let isAdjacent = max([Math.abs(distY), Math.abs(distX)]) <= 1;
+
+    if (isAdjacent) {
         // no need to move
         return second;
     }
 
-    // move from current position towards the head
+    // move from current position towards the head by maximum of one step each axis
     return new Position(second.y + maxOne(distY), second.x + maxOne(distX));
 }
 
+/**
+ * Limits the given number to +/- 1 or 0.
+ */
+function maxOne(num: number): number {
+    if (num === 0) {
+        return 0;
+    }
+    return num / Math.abs(num);
+}
 
 
 /**
@@ -72,21 +71,20 @@ function getTailPositions(motions: string[][], rope: Position[]): Position[] {
     return tailPath;
 }
 
+/**
+ * Creates a new rope with the given number of knots (all in zero position).
+ */
 function createRope(length: number): Position[] {
-    let rope = new Array<Position>();
-    for (let i = 0; i < length; i++) {
-        rope.push(new Position(0, 0));
-    }
-    return rope;
+    return new Array<Position>(length).fill(new Position(0, 0));
 }
 
 // part 1
 let shortRope = createRope(2);
 let firstTailPath = getTailPositions(seriesOfMotions, shortRope);
-console.log('Part 1: ', new Set(firstTailPath.map(pos => `${pos.y}:${pos.x}`)).size);
+console.log('Part 1:', new Set(firstTailPath.map(pos => `${pos.y}:${pos.x}`)).size); // 6269
 
 
 // part 2
 let longRope = createRope(10);
 let secondTailPath = getTailPositions(seriesOfMotions, longRope);
-console.log('Part 2: ', new Set(secondTailPath.map(pos => `${pos.y}:${pos.x}`)).size);
+console.log('Part 2:', new Set(secondTailPath.map(pos => `${pos.y}:${pos.x}`)).size); // 2557

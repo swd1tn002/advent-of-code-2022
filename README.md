@@ -126,10 +126,11 @@ Part 2: highest scenic score possible is 230112
 
 * 📄 [src/09_rope-bridge/index.ts](./src/09_rope-bridge/index.ts)
 * 📄 [src/09_rope-bridge/Position.ts](./src/09_rope-bridge/Position.ts)
+* 📄 [src/09_rope-bridge/Position.test.ts](./src/09_rope-bridge/Position.test.ts)
 
 ```
 $ npx npx ts-node src/09_rope-bridge
 
-Part 1:  6269
-Part 2:  2557
+Part 1: 6269
+Part 2: 2557
 ```
