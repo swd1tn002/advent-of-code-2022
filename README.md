@@ -97,6 +97,18 @@ Part 2, start of message: 2383
 ```
 
 
+## [Day 7: No Space Left On Device](https://adventofcode.com/2022/day/7)
+
+* 📄 [src/07_no-space-left-on-device/index.ts](./src/07_no-space-left-on-device/index.ts)
+
+```
+$ npx ts-node src/07_no-space-left-on-device
+
+Part 1: the total size of small directories is 1743217
+Part 2: the smallest directory to free up enough space has size 8319096
+```
+
+
 
 ## [Day 9: Rope Bridge](https://adventofcode.com/2022/day/9)
 
