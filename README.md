@@ -109,6 +109,18 @@ Part 2: the smallest directory to free up enough space has size 8319096
 ```
 
 
+## [Day 8: Treetop Tree House](https://adventofcode.com/2022/day/8)
+
+* 📄 [src/08_treetop-tree-house/index.ts](./src/08_treetop-tree-house/index.ts)
+
+```
+$ npx ts-node src/08_treetop-tree-house
+
+Part 1: the number of visible trees is 1845
+Part 2: highest scenic score possible is 230112
+```
+
+
 
 ## [Day 9: Rope Bridge](https://adventofcode.com/2022/day/9)
 

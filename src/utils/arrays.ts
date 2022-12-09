@@ -28,3 +28,16 @@ function* chunks<T>(arr: T[], chunkSize: number): Generator<T[], void> {
 export function splitToChunks<T>(arr: T[], chunkSize: number): T[][] {
     return [...chunks(arr, chunkSize)];
 }
+
+/**
+ * Transposes the given 2 dimensional array so that rows become columns and columns become rows.
+ */
+export function transpose<T>(matrix: T[][]): T[][] {
+    let rotated = matrix[0].map(col => new Array<T>());
+    matrix.forEach((row, y) => {
+        row.forEach((value, x) => {
+            rotated[x][y] = value;
+        });
+    })
+    return rotated;
+}
