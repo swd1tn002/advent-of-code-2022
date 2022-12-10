@@ -1,149 +1,153 @@
-import { readFileSync } from "fs";
-import { sortNumbers, sum } from "../utils/arrays";
+import path from 'path';
+import { readFileSync } from 'fs';
+import { min, sum } from '../utils/arrays';
 import { splitStringMatrix } from '../utils/strings';
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
 
 /* "You browse around the filesystem to assess the situation and
  * save the resulting terminal output (your puzzle input)."
  */
 let terminal = splitStringMatrix(puzzleInput, '$ ', '\n').filter(line => line[0].length > 0);
 
-/* "The filesystem consists of a tree of files (plain data) and directories (which can contain other directories or files).
- * The outermost directory is called /."
- */
-class File {
-    size: number;
-    name: string;
-
-    constructor(size: number, name: string) {
-        this.size = size;
-        this.name = name;
-    }
-}
-
 class Directory {
-    subDirectories: Map<String, Directory> = new Map<String, Directory>();
-    files: Map<String, File> = new Map<String, File>();
+    subDirectories: { [key: string]: Directory } = {};
+    files: { [key: string]: number } = {};
     name: string;
-    parent: Directory;
+    parent: Directory; // parent directory, or `this` for root directory
 
     constructor(name: string, parent: Directory | null = null) {
         this.name = name;
         this.parent = parent ?? this;
     }
 
-    /**
-     * "The total size of a directory is the sum of the sizes of the files it contains, directly or indirectly."
-     */
+    /** "The total size of a directory is the sum of the sizes of the files it contains, directly or indirectly." */
     getSize(): number {
-        let size = 0;
-        for (let [name, subdir] of this.subDirectories) {
-            size += subdir.getSize();
+        let directories = this.traverseDirectories();
+        let sizes = directories.map(dir => Object.values(dir.files)).flat();
+        return sum(sizes);
+    }
+
+    /** Traverses up the directory tree until root is found and returned. */
+    getRoot(): Directory {
+        if (this.parent === this) {
+            return this;
         }
-        for (let [name, file] of this.files) {
-            size += file.size;
+        return this.parent.getRoot();
+    }
+
+    /** Traverses the directory structure from given starting point and returns all in an array. */
+    traverseDirectories(): Directory[] {
+        let directories: Directory[] = [this];
+        for (let subDir of Object.values(this.subDirectories)) {
+            directories.push(...subDir.traverseDirectories());
         }
-        return size;
+        return directories;
     }
 }
 
 /**
  * "Within the terminal output, lines that begin with $ are commands you executed,
  * very much like some modern computers"
+ *
+ * @returns the context directory after the command being executed
  */
-function applyCommand([line, ...output]: string[]) {
+function applyCommand(context: Directory, [line, ...output]: string[]): Directory {
     let [command, param] = line.split(' ');
     switch (command) {
         case 'cd':
-            switch (param) {
-                case '/':
-                    current = root;
-                    break;
-                case '..':
-                    current = current.parent;
-                    break;
-                default:
-                    current = current.subDirectories.get(param) as Directory;
-                    break;
-            }
-            break;
+            return cd(context, param);
         case 'ls':
-            applyLsOutput(current, output);
-            break;
+            return ls(context, output);
         default:
             throw new Error(`Unknown command ${line}`);
     }
 }
 
 /**
- * "ls means list. It prints out all of the files and directories
- * immediately contained by the current directory"
+ * "cd means change directory. This changes which directory is the current
+ * directory, but the specific result depends on the argument"
+ *
+ * @returns the context directory after the command being executed
  */
-function applyLsOutput(directory: Directory, lsOutput: string[]) {
-    for (let line of lsOutput) {
-        if (line.startsWith('dir')) {
-            let [_dir, name] = line.split(' ');
-            let subFolder = new Directory(name, directory);
-            directory.subDirectories.set(name, subFolder);
-        } else {
-            let [sizeStr, name] = line.split(' ');
-            let file = new File(Number(sizeStr), name);
-            directory.files.set(name, file);
-        }
+function cd(context: Directory, target: string): Directory {
+    switch (target) {
+        case '/':
+            return context.getRoot();
+        case '..':
+            return context.parent;
+        default:
+            return context.subDirectories[target];
     }
-}
-
-
-// "The outermost directory is called /."
-const root = new Directory('/');
-let current = root;
-
-/* "Within the terminal output, lines that begin with $ are commands
- * you executed, very much like some modern computers" */
-for (let chunk of terminal) {
-    applyCommand(chunk);
 }
 
 /**
- * Traverses the folder structure from given starting point and returns all directories.
+ * "ls means list. It prints out all of the files and directories
+ * immediately contained by the current directory"
+ *
+ * For example:
+ * $ ls
+ * dir a
+ * dir d
+ * 14848514 b.txt
+ * 8504156 c.dat
+ *
+ * @returns the context directory after the command being executed
  */
-function getAllDirectories(current: Directory): Directory[] {
-    let directories = [current];
-    for (let subDir of current.subDirectories.values()) {
-        directories.push(...getAllDirectories(subDir));
+function ls(context: Directory, lsOutput: string[]): Directory {
+    for (let line of lsOutput) {
+        let [prefix, name] = line.split(' ');
+        if (prefix === 'dir') {
+            context.subDirectories[name] = new Directory(name, context);
+        } else {
+            context.files[name] = Number(prefix);
+        }
     }
-    return directories;
+    return context;
 }
 
-let allDirectories = getAllDirectories(root);
+function main() {
+    // "The outermost directory is called /."
+    let root = new Directory('/');
+    let current = root;
 
-/*
- * "To begin, find all of the directories with a total size of at most 100000,
- * then calculate the sum of their total sizes."
- */
-let directorySizes = allDirectories.map(dir => dir.getSize());
-let smallDirectories = directorySizes.filter(size => size <= 100_000);
+    /* "Within the terminal output, lines that begin with $ are commands
+     * you executed, very much like some modern computers" */
+    for (let chunk of terminal) {
+        current = applyCommand(current, chunk);
+    }
 
-console.log('Part 1: the total size of small directories is', sum(smallDirectories)); // 1743217
+    let allDirectories = root.traverseDirectories();
 
+    /*
+     * "To begin, find all of the directories with a total size of at most 100000,
+     * then calculate the sum of their total sizes."
+     */
+    const sizeLimit = 100_000;
+    let directorySizes = allDirectories.map(dir => dir.getSize());
+    let smallDirectories = directorySizes.filter(size => size <= sizeLimit);
 
-/*
- * Part 2: "The total disk space available to the filesystem is 70000000. To run the
- * update, you need unused space of at least 30000000. You need to find a directory you
- * can delete that will free up enough space to run the update."
- */
-let totalSpace = 70_000_000;
-let usedSpace = root.getSize();
-let freeSpace = totalSpace - usedSpace;
+    console.log('Part 1: the total size of small directories is', sum(smallDirectories)); // 1743217
 
-let neededSpace = 30_000_000;
-let minSizeToDelete = neededSpace - freeSpace;
+    /*
+     * Part 2: "The total disk space available to the filesystem is 70000000. To run the
+     * update, you need unused space of at least 30000000. You need to find a directory you
+     * can delete that will free up enough space to run the update."
+     */
+    let totalSpace = 70_000_000;
+    let usedSpace = root.getSize();
+    let freeSpace = totalSpace - usedSpace;
 
-/*
- * "Find the smallest directory that, if deleted, would free up enough space on the filesystem
- * to run the update. What is the total size of that directory?"
- */
-let deletionCandidates = directorySizes.filter(s => s >= minSizeToDelete);
+    let neededSpace = 30_000_000;
+    let minSizeToDelete = neededSpace - freeSpace;
 
-console.log('Part 2: the smallest directory to free up enough space has size', sortNumbers(deletionCandidates)[0]); // 8319096
+    /*
+     * "Find the smallest directory that, if deleted, would free up enough space on the filesystem
+     * to run the update. What is the total size of that directory?"
+     */
+    let deletionCandidates = directorySizes.filter(s => s >= minSizeToDelete);
+
+    console.log('Part 2: the smallest directory to free up enough space has size', min(deletionCandidates)); // 8319096
+}
+
+main();
