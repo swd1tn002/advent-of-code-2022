@@ -130,8 +130,8 @@ function main() {
     console.log('Part 1: the total size of small directories is', sum(smallDirectories)); // 1743217
 
     /*
-     * Part 2: "The total disk space available to the filesystem is 70000000. To run the
-     * update, you need unused space of at least 30000000. You need to find a directory you
+     * Part 2: "The total disk space available to the filesystem is 70 000 000. To run the
+     * update, you need unused space of at least 30 000 000. You need to find a directory you
      * can delete that will free up enough space to run the update."
      */
     let totalSpace = 70_000_000;
