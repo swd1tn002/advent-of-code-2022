@@ -121,7 +121,6 @@ Part 2: highest scenic score possible is 230112
 ```
 
 
-
 ## [Day 9: Rope Bridge](https://adventofcode.com/2022/day/9)
 
 * 📄 [src/09_rope-bridge/index.ts](./src/09_rope-bridge/index.ts)
@@ -129,8 +128,29 @@ Part 2: highest scenic score possible is 230112
 * 📄 [src/09_rope-bridge/Position.test.ts](./src/09_rope-bridge/Position.test.ts)
 
 ```
-$ npx npx ts-node src/09_rope-bridge
+$ npx ts-node src/09_rope-bridge
 
 Part 1: 6269
 Part 2: 2557
+```
+
+
+## [Day 10: Cathode-Ray Tube](https://adventofcode.com/2022/day/10)
+
+* 📄 [src/10_cathode-ray-tube/index.ts](./src/10_cathode-ray-tube/index.ts)
+
+
+```
+$ npx ts-node src/10_cathode-ray-tube
+
+The sum of these signal strengths is: 17840
+
+Text on CRT screen:
+
+####..##..#.....##..#..#.#....###...##..
+#....#..#.#....#..#.#..#.#....#..#.#..#.
+###..#..#.#....#....#..#.#....#..#.#....
+#....####.#....#.##.#..#.#....###..#.##.
+#....#..#.#....#..#.#..#.#....#....#..#.
+####.#..#.####..###..##..####.#.....###.
 ```
