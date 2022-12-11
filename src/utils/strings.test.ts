@@ -1,5 +1,11 @@
 import { test, describe } from '@jest/globals';
-import { splitLines, splitNumberMatrix, splitStringMatrix } from './strings';
+import {
+    splitLines,
+    splitNumberMatrix,
+    splitStringMatrix,
+    extractNumber,
+    extractNumbers
+} from './strings';
 import { strict as assert } from 'assert';
 
 
@@ -43,5 +49,14 @@ describe('String utilities', () => {
                      6000`;
 
         assert.deepEqual(splitNumberMatrix(input, '\n\n', '\n'), [[1000, 2000, 3000], [4000], [5000, 6000]]);
+    });
+
+    test('Extract number from a string', () => {
+        assert.equal(extractNumber('The secret number is 42, of course.'), 42);
+    });
+
+    test('Extract numbers from a string', () => {
+        let numbers = extractNumbers('The numbers are 1, 2, 3, 4 and 42.');
+        assert.deepEqual(numbers, [1, 2, 3, 4, 42]);
     });
 });

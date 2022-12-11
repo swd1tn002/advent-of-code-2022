@@ -20,7 +20,7 @@ Max calories: 71502
 Top three calories total: 208191
 ```
 
-Added utilities for handling puzzle input: 
+Added utilities for handling puzzle input:
 
 * 📄 [arrays.ts](./src/utils/arrays.ts), [arrays.test.ts](./src/utils/arrays.test.ts)
 * 📄 [strings.ts](./src/utils/strings.ts), [strings.test.ts](./src/utils/strings.test.ts)
@@ -153,4 +153,17 @@ Text on CRT screen:
 #....####.#....#.##.#..#.#....###..#.##.
 #....#..#.#....#..#.#..#.#....#....#..#.
 ####.#..#.####..###..##..####.#.....###.
+```
+
+
+## [Day 11: Monkey in the Middle](https://adventofcode.com/2022/day/11)
+
+* 📄 [src/11_monkey-in-the-middle/index.ts](./src/11_monkey-in-the-middle/index.ts)
+
+
+```
+$ npx ts-node ./src/11_monkey-in-the-middle
+
+Part 1: monkey business level after 20 rounds: 66124
+Part 2: monkey business level after 10 000 rounds: 19309892877
 ```

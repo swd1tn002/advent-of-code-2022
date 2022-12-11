@@ -1,117 +1,158 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { splitStringMatrix } from '../utils/strings';
+import { splitStringMatrix, extractNumber, extractNumbers } from '../utils/strings';
 import { sortNumbers } from '../utils/arrays';
 
+/* "You take some notes (your puzzle input) on the items each monkey currently has, how worried you
+ * are about those items, and how the monkey makes decisions based on your worry level. */
 const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
 let monkeyChunks = splitStringMatrix(puzzleInput, '\n\n', '\n  ').filter(line => line[0].length > 0);
 
+type worryFunction = (x: number) => number;
 
 class Monkey {
     items: number[];
-    operation: (old: number) => number;
+    inspect: worryFunction;
     divider: number;
-    throwTo: [number, number];
-    reliefFactor: number;
+    testFunc: worryFunction;
     inspected = 0;
 
-    constructor(items: number[], operation: (old: number) => number, divider: number, throwTo: [number, number], reliefFactor: number) {
+    constructor(items: number[], operation: worryFunction, divider: number, testFunc: worryFunction) {
         this.items = items;
-        this.operation = operation;
+        this.inspect = operation;
         this.divider = divider;
-        this.throwTo = throwTo;
-        this.reliefFactor = reliefFactor;
+        this.testFunc = testFunc;
     }
 
-    static parse(inputs: string[], reliefFactor: number): Monkey {
-        let [_id, items, operation, test, truthy, falsy] = inputs;
+    /**
+     * "Each monkey has several attributes: starting items,
+     * operation, test, if true and if false."
+     * @param lines that describe the monkey's behaviour
+     */
+    static parse(lines: string[]): Monkey {
+        let [_id, _items, _operation, _test, _ifTrue, _ifFalse] = lines;
 
-        let i = parseItems(items);
-        let o = parseOperation(operation);
-        let d = parseDivider(test);
-        let tt = parseThrows(truthy, falsy);
-        return new Monkey(i, o, d, tt, reliefFactor);
+        let items = parseItems(_items);
+        let operation = parseOperation(_operation);
+        let [divider, testFunc] = parseTest(_test, _ifTrue, _ifFalse);
+        return new Monkey(items, operation, divider, testFunc);
     }
 
-    playRound(): void {
+    /**
+     * "On a single monkey's turn, it inspects and throws all of the items it is holding
+     * one at a time and in the order listed. Monkey 0 goes first, then monkey 1, and so
+     * on until each monkey has had one turn. The process of each monkey taking a single
+     * turn is called a round.
+     */
+    playRound(monkeys: Monkey[], reliefFunc: worryFunction): void {
         while (this.items.length) {
-            let worryLevel = this.items.shift() as number;
-            //console.log('before', worryLevel);
+            let item = this.items.shift() as number;
 
-            // inspection
-            worryLevel = this.operation(worryLevel);
+            // inspection results in an increased worry level
+            item = this.inspect(item);
 
-            // relief
-            worryLevel = Math.floor(worryLevel / this.reliefFactor);
+            // relief the worry level with given functions
+            item = reliefFunc(item);
 
-            worryLevel = worryLevel % mul(monkeys.map(m => m.divider));
+            // When a monkey throws an item to another monkey, the item goes on the end
+            // of the recipient monkey's list.
+            let throwTo = this.testFunc(item);
+            monkeys[throwTo].items.push(item);
 
-            //console.log('after', worryLevel);
-
-            if (worryLevel % this.divider === 0) {
-                monkeys[this.throwTo[0]].items.push(worryLevel);
-            } else {
-                monkeys[this.throwTo[1]].items.push(worryLevel);
-            }
             this.inspected++;
         }
     }
 }
 
-function mul(numbers: number[]): number {
+/**
+ * Multiplies all given numbers together: [a, b, c] => a * b * c;
+ */
+function multiply(numbers: number[]): number {
     return numbers.slice(1).reduce((prev, curr) => prev * curr, numbers[0]);
 }
 
+/**
+ * @param line "Starting items: 83, 96, 86, 58, 92"
+ * @returns [83, 96, 86, 58, 92]
+ */
 function parseItems(line: string): number[] {
-    // Starting items: 83, 96, 86, 58, 92
-    return line.substring(16).replace(', ', ',').split(',').map(n => Number(n));
+    return extractNumbers(line);
 }
 
-function parseOperation(line: string): (x: number) => number {
-    // Operation: new = old * 13
-    // Operation: new = old + 2
+/**
+ * "Operation shows how your worry level changes as that monkey inspects an item."
+ * @param line "Operation: new = old * 13" or "Operation: new = old + old"
+ */
+function parseOperation(line: string): worryFunction {
     let op = line.substring(17);
     return (x: number) => eval(op.replace(/old/g, `${x}`));
 }
 
-function parseDivider(input: string): number {
-    // "Test: divisible by 3"
-    return Number(input.substring(19));
+/**
+ * "Test" shows how the monkey uses your worry level to decide where to throw an item next.
+ * @param input  "Test: divisible by 3"
+ * @param truthy "  If true: throw to monkey 7"
+ * @param falsy  "  If false: throw to monkey 3"
+ * @return the divider used and a worry function that returns the truthy and falsy monkey numbers
+ */
+function parseTest(input: string, truthy: string, falsy: string): [number, worryFunction] {
+    let divider = extractNumber(input);
+    let [t, f] = [extractNumber(truthy), extractNumber(falsy)];
+
+    return [divider, (x: number) => (x % divider === 0) ? t : f];
 }
 
-function parseThrows(truthy: string, falsy: string): [number, number] {
-    // "  If true: throw to monkey 7"
-    // "  If false: throw to monkey 3"
-    return [Number(truthy.substring(27)), Number(falsy.substring(28))];
+/**
+ * "The level of monkey business can be found by multiplying the
+ * inspections of the two most active monkeys together."
+ */
+function calculateMonkeyBusinessLevel(monkeys: Monkey[]): number {
+    let inspectionCounts = monkeys.map(m => m.inspected);
+    let mostActive = sortNumbers(inspectionCounts).slice(-2);
+
+    return multiply(mostActive);
 }
 
-let monkeys = monkeyChunks.map(c => Monkey.parse(c, 3));
 
-// tests
-let first = monkeys[0];
-console.log(first.operation(100) === 1300);
-console.log(first.divider === 19);
+function part1() {
+    let monkeys = monkeyChunks.map(c => Monkey.parse(c));
 
-for (let round = 0; round < 20; round++) {
-    monkeys.forEach(monkey => monkey.playRound());
+    /* "After each monkey inspects an item but before it tests your worry level,
+     * your relief that the monkey's inspection didn't damage the item causes
+     * your worry level to be divided by three and rounded down to the nearest integer. */
+    let divideWorryByThree: worryFunction = (worry: number) => Math.floor(worry / 3);
+
+    /* "You're going to have to focus on the two most active monkeys if you want any hope of getting
+     * your stuff back. Count the total number of times each monkey inspects items over 20 rounds." */
+    for (let round = 0; round < 20; round++) {
+        monkeys.forEach(monkey => monkey.playRound(monkeys, divideWorryByThree));
+    }
+
+    console.log('Part 1: monkey business level after 20 rounds:', calculateMonkeyBusinessLevel(monkeys)); // 66124
 }
 
-let inspections = monkeys.map(m => m.inspected);
-console.log({ inspections });
+function part2() {
+    let monkeys = monkeyChunks.map(c => Monkey.parse(c));
 
-let largest = sortNumbers(inspections).slice(-2);
+    /* "You're worried you might not ever get your items back. So worried, in fact, that your
+     * relief that a monkey's inspection didn't damage an item no longer causes your worry
+     * level to be divided by three.
+     *
+     * Unfortunately, that relief was all that was keeping your worry levels from reaching
+     * ridiculous levels.You'll need to find another way to keep your worry levels manageable."
+     *
+     * Solution: multiple the dividers of all monkeys to get a common "worry levle", which will
+     * cause the worry level to roll over by a point that is common to all dividers.
+     */
+    let maxWorryLevel = multiply(monkeys.map(m => m.divider));
+    let limitWorry: worryFunction = (worry: number) => worry % maxWorryLevel;
 
-console.log('Monkey business level:', largest[0] * largest[1]);
+    for (let round = 0; round < 10_000; round++) {
+        monkeys.forEach(monkey => monkey.playRound(monkeys, limitWorry));
+    }
 
-monkeys = monkeyChunks.map(c => Monkey.parse(c, 1));
-
-for (let round = 0; round < 10_000; round++) {
-    monkeys.forEach(monkey => monkey.playRound());
+    console.log('Part 2: monkey business level after 10 000 rounds:', calculateMonkeyBusinessLevel(monkeys)); // 19309892877
 }
 
-inspections = monkeys.map(m => m.inspected);
-console.log({ inspections });
-
-largest = sortNumbers(inspections).slice(-2);
-
-console.log('Monkey business level:', largest[0] * largest[1]);
+part1();
+part2();
