@@ -7,27 +7,18 @@ class Square {
     x: number;
     y: number;
     elevation: number;
-    isStart: boolean = false;
-    isEnd: boolean = false;
-    distance = Infinity;
+    distanceToEnd = Infinity;
 
     constructor(y: number, x: number, char: string) {
         this.y = y;
         this.x = x;
+        this.elevation = this.getElevation(char);
+    }
 
-        // Your current position (S) has elevation a, and the location that
-        // should get the best signal(E) has elevation z.
-        switch (char) {
-            case 'S':
-                char = 'a';
-                this.isStart = true;
-                break;
-            case 'E':
-                char = 'z'
-                this.isEnd = true;
-                break;
-        }
-        this.elevation = char.charCodeAt(0) - 'a'.charCodeAt(0);
+    private getElevation(char: string): number {
+        // Starting position (S) has elevation a, and the location that
+        // should get the best signal (E) has elevation z.
+        return char.replace('S', 'a').replace('E', 'z').charCodeAt(0) - 'a'.charCodeAt(0);
     }
 }
 
@@ -51,36 +42,34 @@ function getAccessibleNeighbors(grid: Square[][], square: Square): Square[] {
 }
 
 /**
- * Used Dijkstra's algorithm to find the distances to all other squares on the grid
- * from the given square.
+ * This function uses Dijkstra's algorithm to find the distances to all
+ * other squares on the grid from the given square.
  */
-function updateDistancesFrom(grid: Square[][], square: Square) {
+function updateDistancesFrom(grid: Square[][], from: Square) {
     let queue = grid.flat();
-    queue.forEach(s => s.distance = Infinity);
-    square.distance = 0;
+    from.distanceToEnd = 0;
 
     while (queue.length > 0) {
-        let next = queue.reduce((s1, s2) => s1.distance < s2.distance ? s1 : s2, queue[0]);
-        queue = queue.filter(s => s !== next);
+        let closest = queue.reduce((s1, s2) => s1.distanceToEnd < s2.distanceToEnd ? s1 : s2, queue[0]);
+        queue = queue.filter(s => s !== closest);
 
-        for (let neighbor of getAccessibleNeighbors(grid, next).filter(n => queue.includes(n))) {
-            let newDistance = next.distance + 1;
-            if (newDistance < neighbor.distance) {
-                neighbor.distance = newDistance;
-            }
-        }
+        // update `current distance + 1` to neighbors that are still unvisited
+        getAccessibleNeighbors(grid, closest)
+            .filter(n => queue.includes(n))
+            .forEach(neighbor => neighbor.distanceToEnd = closest.distanceToEnd + 1);
     }
 }
 
 function main() {
     const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
     let heightMap: string[][] = splitStringMatrix(puzzleInput, '\n', '');
+    let chars = heightMap.flat();
 
     let grid = heightMap.map((row, y) => row.map((char, x) => new Square(y, x, char)));
     let squares = grid.flat();
 
-    let start = squares.find(s => s.isStart) as Square;
-    let end = squares.find(s => s.isEnd) as Square;
+    let start = squares[chars.indexOf('S')];
+    let end = squares[chars.indexOf('E')];
 
     /* In this implementation we find the path from the end to all possible starting
     * squares. This way we don't have to repeat path finding for part 2. */
@@ -88,11 +77,11 @@ function main() {
 
     /* "What is the fewest steps required to move from your current position to the
      * location that should get the best signal?" */
-    console.log('Part 1: the distance is', start.distance);
+    console.log('Part 1: the distance is', start.distanceToEnd);
 
     /* "What is the fewest steps required to move starting from any square with
      * elevation a (0) to the location that should get the best signal?" */
-    let startCandidates = squares.filter(s => s.elevation === 0).map(s => s.distance);
+    let startCandidates = squares.filter(s => s.elevation === 0).map(s => s.distanceToEnd);
 
     console.log('Part 2: the minimum distance is', min(startCandidates));
 }
