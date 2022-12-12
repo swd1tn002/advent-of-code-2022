@@ -41,7 +41,7 @@ class Square {
  * of uphill.
  */
 function getAccessibleNeighbors(grid: Square[][], square: Square): Square[] {
-    let [y, x] = [square.y, square.x];
+    let { y, x } = square;
     let neighbors: Square[] = [
         grid[y - 1]?.[x], grid[y + 1]?.[x],
         grid[y][x - 1], grid[y][x + 1]
