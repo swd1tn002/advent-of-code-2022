@@ -3,9 +3,6 @@ import { readFileSync } from 'fs';
 import { splitStringMatrix } from '../utils/strings';
 import { min } from '../utils/arrays';
 
-const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
-let heightMap: string[][] = splitStringMatrix(puzzleInput, '\n', '');
-
 class Square {
     x: number;
     y: number;
@@ -44,18 +41,18 @@ class Square {
  * of uphill.
  */
 function getAccessibleNeighbors(grid: Square[][], square: Square): Square[] {
+    let [y, x] = [square.y, square.x];
     let neighbors: Square[] = [
-        grid[square.y - 1]?.[square.x], // top
-        grid[square.y + 1]?.[square.x], // bottom
-        grid[square.y][square.x - 1], // left
-        grid[square.y][square.x + 1] // right
-    ];
-    return neighbors.filter(n => n && n.elevation >= square.elevation - 1);
+        grid[y - 1]?.[x], grid[y + 1]?.[x],
+        grid[y][x - 1], grid[y][x + 1]
+    ].filter(n => n !== undefined);
+
+    return neighbors.filter(n => n.elevation >= square.elevation - 1);
 }
 
 /**
  * Used Dijkstra's algorithm to find the distances to all other squares on the grid
- * from the given starting square.
+ * from the given square.
  */
 function updateDistancesFrom(grid: Square[][], square: Square) {
     let queue = grid.flat();
@@ -76,6 +73,8 @@ function updateDistancesFrom(grid: Square[][], square: Square) {
 }
 
 function main() {
+    const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+    let heightMap: string[][] = splitStringMatrix(puzzleInput, '\n', '');
 
     let grid = heightMap.map((row, y) => row.map((char, x) => new Square(y, x, char)));
     let squares = grid.flat();
@@ -92,7 +91,7 @@ function main() {
     console.log('Part 1: the distance is', start.distance);
 
     /* "What is the fewest steps required to move starting from any square with
-     * elevation a (0) to the location that should get the best signal? */
+     * elevation a (0) to the location that should get the best signal?" */
     let startCandidates = squares.filter(s => s.elevation === 0).map(s => s.distance);
 
     console.log('Part 2: the minimum distance is', min(startCandidates));
