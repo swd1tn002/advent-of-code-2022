@@ -167,3 +167,15 @@ $ npx ts-node ./src/11_monkey-in-the-middle
 Part 1: monkey business level after 20 rounds: 66124
 Part 2: monkey business level after 10 000 rounds: 19309892877
 ```
+
+
+## [Day 12: Hill Climbing Algorithm](https://adventofcode.com/2022/day/12)
+
+* 📄 [src/12_hill-climbing-algorithm/index.ts](./src/12_hill-climbing-algorithm/index.ts)
+
+```
+$ npx ts-node src/12_hill-climbing-algorithm
+
+Part 1: the distance is 352
+Part 2: the minimum distance is 345
+```
