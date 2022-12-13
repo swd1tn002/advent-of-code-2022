@@ -179,3 +179,15 @@ $ npx ts-node src/12_hill-climbing-algorithm
 Part 1: the distance is 352
 Part 2: the minimum distance is 345
 ```
+
+
+## [Day 13: Distress Signal](https://adventofcode.com/2022/day/13)
+
+* 📄 [src/13_distress_signal/index.ts](./src/13_distress_signal/index.ts)
+
+```
+$ npx ts-node src/13_distress_signal
+
+Part 1: Sum of indices that are in the right order is 6272
+Part 2: The decoder key is 22288
+```
