@@ -19,11 +19,12 @@ function comparePackets(left: string, right: string): number {
 
 /**
  * "When comparing two values, the first value is called left and the second value is called right."
+ * @return negative when p1 < p2, zero when p1 === p2 and positive when p1 > p2
  */
 function compareArrays(packet1: any[], packet2: any[]): number {
-    let res: number = 0;
+    let result: number = 0;
 
-    while (packet1.length || packet2.length) {
+    while (result === 0 && (packet1.length || packet2.length)) {
         let left = packet1.shift();
         let right = packet2.shift();
 
@@ -33,21 +34,15 @@ function compareArrays(packet1: any[], packet2: any[]): number {
         if (typeof right === 'undefined') {
             return 1; // If the right list runs out of items first, the inputs are not in the right order.
         }
-
-        if (Array.isArray(left) && Array.isArray(right)) {
-            res = compareArrays(left, right);
-        } else if (Number.isInteger(left) && Number.isInteger(right)) {
-            res = validateNumbers(left, right);
+        if (Number.isInteger(left) && Number.isInteger(right)) {
+            result = validateNumbers(left, right);
         } else {
-            res = compareArrays(toArray(left), toArray(right));
-        }
-
-        if (res !== 0) {
-            break;
+            // asArray makes sure both are passed as arrays:
+            result = compareArrays(asArray(left), asArray(right));
         }
     }
 
-    return res;
+    return result;
 }
 
 /**
@@ -61,7 +56,7 @@ function validateNumbers(left: number, right: number): number {
 }
 
 /** Wraps the given value in an array unless it already is an array. */
-function toArray(value: any): any[] {
+function asArray(value: any): any[] {
     return Array.isArray(value) ? value : [value];
 }
 
