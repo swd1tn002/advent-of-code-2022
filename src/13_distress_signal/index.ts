@@ -5,7 +5,7 @@ import { sum } from '../utils/arrays';
 
 /* "Packet data consists of lists and integers. Each list starts with [, ends with ],
  * and contains zero or more comma-separated values (either integers or other lists).
- *Each packet is always a list and appears on its own line. */
+ * Each packet is always a list and appears on its own line. */
 const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
 let pairs: [string, string][] = splitStringMatrix(puzzleInput, '\n\n', '\n') as [string, string][];
 
@@ -35,7 +35,7 @@ function compareArrays(packet1: any[], packet2: any[]): number {
             return 1; // If the right list runs out of items first, the inputs are not in the right order.
         }
         if (Number.isInteger(left) && Number.isInteger(right)) {
-            result = validateNumbers(left, right);
+            result = compareNumbers(left, right);
         } else {
             // asArray makes sure both are passed as arrays:
             result = compareArrays(asArray(left), asArray(right));
@@ -51,7 +51,7 @@ function compareArrays(packet1: any[], packet2: any[]): number {
  * is higher than the right integer, the inputs are not in the right order. Otherwise, the
  * inputs are the same integer; continue checking the next part of the input."
  */
-function validateNumbers(left: number, right: number): number {
+function compareNumbers(left: number, right: number): number {
     return left - right;
 }
 
