@@ -191,3 +191,15 @@ $ npx ts-node src/13_distress_signal
 Part 1: Sum of indices that are in the right order is 6272
 Part 2: The decoder key is 22288
 ```
+
+
+## [Day 13: Distress Signal](https://adventofcode.com/2022/day/14)
+
+* 📄 [src/14_regolith_reservoir/index.ts](./src/14_regolith_reservoir/index.ts)
+
+```
+$ npx ts-node src/14_regolith_reservoir
+
+Part 1: there are 825 grains of sand.
+Part 2: there are 26729 grains of sand.
+```
