@@ -11,10 +11,10 @@ const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
 let terminal = splitStringMatrix(puzzleInput, '$ ', '\n').filter(line => line[0].length > 0);
 
 class Directory {
-    subDirectories: { [key: string]: Directory } = {};
-    files: { [key: string]: number } = {};
-    name: string;
-    parent: Directory; // parent directory, or `this` for root directory
+    readonly subDirectories: { [key: string]: Directory } = {};
+    readonly files: { [key: string]: number } = {};
+    readonly name: string;
+    readonly parent: Directory; // parent directory, or `this` for root directory
 
     constructor(name: string, parent: Directory | null = null) {
         this.name = name;

@@ -4,14 +4,11 @@ import { splitStringMatrix } from '../utils/strings';
 import { min } from '../utils/arrays';
 
 class Square {
-    x: number;
-    y: number;
-    elevation: number;
-    distanceToEnd = Infinity;
+    readonly elevation: number;
+    public distanceToEnd = Infinity;
 
-    constructor(y: number, x: number, char: string) {
-        this.y = y;
-        this.x = x;
+    constructor(readonly y: number, readonly x: number, char: string) {
+
         this.elevation = this.getElevation(char);
     }
 

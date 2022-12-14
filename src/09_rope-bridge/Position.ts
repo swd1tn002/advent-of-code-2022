@@ -1,34 +1,22 @@
 export class Position {
-    private _y: number;
-    private _x: number;
 
-    constructor(y: number, x: number) {
-        this._y = y;
-        this._x = x;
-    }
-
-    get x(): number {
-        return this._x;
-    }
-
-    get y(): number {
-        return this._y;
+    constructor(public readonly y: number, public readonly x: number) {
     }
 
     up(): Position {
-        return new Position(this._y + 1, this._x);
+        return new Position(this.y + 1, this.x);
     }
 
     down(): Position {
-        return new Position(this._y - 1, this._x);
+        return new Position(this.y - 1, this.x);
     }
 
     left(): Position {
-        return new Position(this._y, this._x - 1);
+        return new Position(this.y, this.x - 1);
     }
 
     right(): Position {
-        return new Position(this._y, this._x + 1);
+        return new Position(this.y, this.x + 1);
     }
 
     applyDirection(direction: string): Position {

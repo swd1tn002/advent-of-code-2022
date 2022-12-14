@@ -11,17 +11,12 @@ let monkeyChunks = splitStringMatrix(puzzleInput, '\n\n', '\n  ').filter(line =>
 type worryFunction = (x: number) => number;
 
 class Monkey {
-    items: number[];
-    inspect: worryFunction;
-    divider: number;
-    testFunc: worryFunction;
-    inspected = 0;
+    private _inspected = 0;
 
-    constructor(items: number[], operation: worryFunction, divider: number, testFunc: worryFunction) {
-        this.items = items;
-        this.inspect = operation;
-        this.divider = divider;
-        this.testFunc = testFunc;
+    constructor(private items: number[],
+        readonly inspect: worryFunction,
+        readonly divider: number,
+        readonly testFunc: worryFunction) {
     }
 
     /**
@@ -59,8 +54,12 @@ class Monkey {
             let throwTo = this.testFunc(item);
             monkeys[throwTo].items.push(item);
 
-            this.inspected++;
+            this._inspected++;
         }
+    }
+
+    get inspected(): number {
+        return this._inspected;
     }
 }
 

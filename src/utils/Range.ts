@@ -1,10 +1,5 @@
 export class Range {
-    private _start: number;
-    private _end: number;
-
-    constructor(start: number, end: number) {
-        [this._start, this._end] = [start, end];
-    }
+    constructor(readonly start: number, readonly end: number) { }
 
     static parse(range: string) {
         let [start, end] = range.split('-').map(Number);
@@ -23,13 +18,5 @@ export class Range {
         return this.fullyContains(other) || other.fullyContains(this) ||
             this.contains(other.start) || this.contains(other.end) ||
             other.contains(this.start) || other.contains(this.end)
-    }
-
-    get start(): number {
-        return this._start;
-    }
-
-    get end(): number {
-        return this._end;
     }
 }

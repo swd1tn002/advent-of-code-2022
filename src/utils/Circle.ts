@@ -3,11 +3,8 @@
  * wrapping around the indices.
  */
 export default class Circle<T> {
-    private content: T[];
 
-    constructor(content: T[]) {
-        this.content = content;
-    }
+    constructor(private content: T[]) { }
 
     /**
      * Gets the element from given index. Negative indices also supported.

@@ -1,14 +1,9 @@
 import { readFileSync } from 'fs';
 import { splitNumberMatrix } from '../utils/strings';
-import { max, reverseRows, sum, transpose } from '../utils/arrays';
+import { max, reverseRows, transpose } from '../utils/arrays';
 
 class Tree {
-    height = 0;
-    visible = false;
-
-    constructor(height: number) {
-        this.height = height;
-    }
+    constructor(public readonly height: number, public visible = false) { }
 }
 
 /**
