@@ -1,6 +1,6 @@
 import { test, describe } from '@jest/globals';
 import { strict as assert } from 'assert';
-import { last, max, min, reverseRows, sortNumbers, splitToChunks, sum, transpose } from './arrays';
+import { last, max, min, reverseRows, sortNumbers, splitToChunks, sum, transpose, zip } from './arrays';
 
 describe('Array utilities', () => {
     test('Max returns largest item in array', () => {
@@ -50,5 +50,12 @@ describe('Array utilities', () => {
 
         let result = reverseRows(original);
         assert.deepEqual(result, [[3, 2, 1], [6, 5, 4]]);
+    });
+
+    test('Zip combines two arrays into an array of pairs', () => {
+        let arr1 = [1, 2];
+        let arr2 = ['a', 'b'];
+
+        assert.deepEqual(zip(arr1, arr2), [[1, 'a'], [2, 'b']]);
     });
 });

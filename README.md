@@ -193,7 +193,7 @@ Part 2: The decoder key is 22288
 ```
 
 
-## [Day 13: Distress Signal](https://adventofcode.com/2022/day/14)
+## [Day 14: Regolith Reservoir](https://adventofcode.com/2022/day/14)
 
 * 📄 [src/14_regolith_reservoir/index.ts](./src/14_regolith_reservoir/index.ts)
 

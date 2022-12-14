@@ -52,6 +52,6 @@ export function reverseRows<T>(matrix: T[][]): T[][] {
 /**
  * Returns an array that contains pairs from arr1 and arr2 as tuples.
  */
-export function zip<T>(arr1: T[], arr2: T[]): [T, T][] {
+export function zip<T, U>(arr1: T[], arr2: U[]): [T, U][] {
     return arr1.map((v, i) => [v, arr2[i]]);
 }
