@@ -48,3 +48,10 @@ export function transpose<T>(matrix: T[][]): T[][] {
 export function reverseRows<T>(matrix: T[][]): T[][] {
     return matrix.map(row => [...row].reverse());
 }
+
+/**
+ * Returns an array that contains pairs from arr1 and arr2 as tuples.
+ */
+export function zip<T>(arr1: T[], arr2: T[]): [T, T][] {
+    return arr1.map((v, i) => [v, arr2[i]]);
+}

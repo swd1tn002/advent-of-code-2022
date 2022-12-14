@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { splitStringMatrix } from '../utils/strings';
 import { last, max } from '../utils/arrays';
+import { maxOne } from '../utils/numbers';
 import { Position } from './Position';
 
 const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
@@ -27,16 +28,6 @@ function updateFollowersPosition(first: Position, second: Position): Position {
 
     // move from current position towards the head by maximum of one step each axis
     return new Position(second.y + maxOne(distY), second.x + maxOne(distX));
-}
-
-/**
- * Limits the given number to +/- 1 or 0.
- */
-function maxOne(num: number): number {
-    if (num === 0) {
-        return 0;
-    }
-    return num / Math.abs(num);
 }
 
 
