@@ -2,13 +2,14 @@ import path from 'path';
 import { readFileSync } from 'fs';
 import { splitLines, extractNumbers } from '../utils/strings';
 import { Range } from '../utils/Range';
-import { last, max, min, sum } from '../utils/arrays';
+import { sum } from '../utils/arrays';
 
 
 class Point {
     constructor(readonly x: number, readonly y: number) {
     }
 
+    /** Returns the Manhattan distance between this and the other point. */
     getDistance(p: Point): number {
         return Math.abs(p.x - this.x) + Math.abs(p.y - this.y);
     }
@@ -103,12 +104,9 @@ function main() {
     let coveredPositions = sum(nonOverlappingRanges.map(r => r.size));
     console.log('Part 1: number of positions that cannot contain a beacon is', (coveredPositions - sensorsOnLine - beaconsOnLine)); // 4502208
 
-    function inBounds(p: Point, spaceSize: number): boolean {
-        let { x, y } = p;
-        return 0 <= min([x, y]) && max([x, y]) <= spaceSize;
-    }
-
-    /**
+    /*
+     * Part 2:
+     *
      * "The distress beacon is not detected by any sensor, but the distress beacon must have x and
      * y coordinates each no lower than 0 and no larger than 4000000."
      */
