@@ -203,3 +203,17 @@ $ npx ts-node src/14_regolith_reservoir
 Part 1: there are 825 grains of sand.
 Part 2: there are 26729 grains of sand.
 ```
+
+
+## [Day 15: Beacon Exclusion Zone](https://adventofcode.com/2022/day/15)
+
+* 📄 [src/15_beacon-exclusion-zone/index.ts](./src/15_beacon-exclusion-zone/index.ts)
+
+
+```
+$ npx ts-node src/15_beacon-exclusion-zone
+
+Part 1: the number of positions that cannot contain a beacon is 4502208
+Part 2: the distress signal is coming from 3446137,3204480
+Part 2: the distress signal frequency is 13784551204480
+```
