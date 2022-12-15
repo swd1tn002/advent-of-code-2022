@@ -55,8 +55,18 @@ describe('String utilities', () => {
         assert.equal(extractNumber('The secret number is 42, of course.'), 42);
     });
 
+    test('Extract negative number from a string', () => {
+        assert.equal(extractNumber('The secret number is -42, of course.'), -42);
+    });
+
     test('Extract numbers from a string', () => {
         let numbers = extractNumbers('The numbers are 1, 2, 3, 4 and 42.');
         assert.deepEqual(numbers, [1, 2, 3, 4, 42]);
     });
+
+    test('Extract negative numbers from a string', () => {
+        let numbers = extractNumbers('The numbers are -1, -2, -3, -4 and -42.');
+        assert.deepEqual(numbers, [-1, -2, -3, -4, -42]);
+    });
+
 });
