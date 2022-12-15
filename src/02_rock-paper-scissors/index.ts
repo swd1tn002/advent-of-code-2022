@@ -1,9 +1,10 @@
 import { readFileSync } from 'fs';
+import path from 'path';
 import { sum } from '../utils/arrays';
 import { parseGameMoves, parseGameStrategies, getScoreForRound } from './rockPaperScissors';
 
 // "one Elf gives you an encrypted strategy guide (your puzzle input)"
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 
 // "Your total score is the sum of your scores for  each round."
 

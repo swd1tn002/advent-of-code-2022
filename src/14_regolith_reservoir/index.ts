@@ -6,7 +6,7 @@ import { maxOne } from '../utils/numbers';
 
 /* "You scan a two-dimensional vertical slice of the cave above you (your puzzle input)
  * and discover that it is mostly air with structures made of rock. */
-const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 let pathInput = splitStringMatrix(puzzleInput, '\n', ' -> ');
 
 enum Material { AIR, SAND, ROCK };

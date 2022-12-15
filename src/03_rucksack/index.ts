@@ -1,9 +1,10 @@
 import { readFileSync } from 'fs';
+import path from 'path';
 import { sum } from '../utils/arrays';
 import { splitLines } from '../utils/strings';
 import { findBadgeGroupType, findCommonType, getPriority, splitToBadgeGroups, splitToCompartments } from "./rucksack";
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 let rucksacks = splitLines(puzzleInput);
 
 

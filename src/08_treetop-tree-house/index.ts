@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { splitNumberMatrix } from '../utils/strings';
 import { max, reverseRows, transpose } from '../utils/arrays';
+import path from 'path';
 
 class Tree {
     constructor(public readonly height: number, public visible = false) { }
@@ -99,7 +100,7 @@ function getMaxScenicScore(grid: Tree[][]): number {
 }
 
 function main() {
-    const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+    const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
     const heights: number[][] = splitNumberMatrix(puzzleInput, '\n', '');
 
     /**

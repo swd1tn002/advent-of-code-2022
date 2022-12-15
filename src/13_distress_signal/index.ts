@@ -6,7 +6,7 @@ import { sum } from '../utils/arrays';
 /* "Packet data consists of lists and integers. Each list starts with [, ends with ],
  * and contains zero or more comma-separated values (either integers or other lists).
  * Each packet is always a list and appears on its own line. */
-const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 let pairs: [string, string][] = splitStringMatrix(puzzleInput, '\n\n', '\n') as [string, string][];
 
 /**

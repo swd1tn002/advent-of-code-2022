@@ -58,7 +58,7 @@ function updateDistancesFrom(grid: Square[][], from: Square) {
 }
 
 function main() {
-    const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+    const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
     let heightMap: string[][] = splitStringMatrix(puzzleInput, '\n', '');
     let chars = heightMap.flat();
 

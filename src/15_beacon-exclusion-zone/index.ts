@@ -23,7 +23,8 @@ class Point {
 }
 
 /**
- * "Each sensor knows its own position and can determine the position of a beacon precisely" */
+ * "Each sensor knows its own position and can determine the position of a beacon precisely"
+ */
 class Sensor {
     constructor(readonly location: Point, readonly closestBeacon: Point) {
     }
@@ -76,10 +77,11 @@ function parseSensor(line: string): Sensor {
     return new Sensor(new Point(sensorX, sensorY), new Point(beaconX, beaconY));
 }
 
-const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
-const sensors = splitLines(puzzleInput).map(parseSensor);
 
 function main() {
+    const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
+    const sensors = splitLines(puzzleInput).map(parseSensor);
+
     /*
      * Part 1:
      *

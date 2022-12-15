@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
+import path from "path";
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 
 function allDifferent(chars: string): boolean {
     return new Set(chars).size === chars.length;

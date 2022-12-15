@@ -3,8 +3,9 @@ import { splitStringMatrix } from '../utils/strings';
 import { last, max } from '../utils/arrays';
 import { maxOne } from '../utils/numbers';
 import { Position } from './Position';
+import path from 'path';
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 const seriesOfMotions: string[][] = splitStringMatrix(puzzleInput);
 
 

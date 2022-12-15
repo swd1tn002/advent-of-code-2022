@@ -4,4 +4,4 @@ import { splitLines, splitStringMatrix, splitNumberMatrix, extractNumber, extrac
 import { sum, last, max, min, reverseRows, sortNumbers, splitToChunks, transpose } from '../utils/arrays';
 
 
-const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');

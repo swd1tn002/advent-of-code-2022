@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { min, sum } from '../utils/arrays';
 import { splitStringMatrix } from '../utils/strings';
 
-const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 
 /* "You browse around the filesystem to assess the situation and
  * save the resulting terminal output (your puzzle input)."

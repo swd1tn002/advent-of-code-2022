@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import path from 'path';
 import { Range } from '../utils/Range';
 import { splitStringMatrix } from '../utils/strings';
 
@@ -13,10 +14,10 @@ function parsePuzzleInput(puzzleInput: string): [Range, Range][] {
     });
 }
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 const pairs: [Range, Range][] = parsePuzzleInput(puzzleInput);
 
-/* Part 1: Some of the pairs have noticed that one of their assignments fully contains the other. 
+/* Part 1: Some of the pairs have noticed that one of their assignments fully contains the other.
  * For example, 2-8 fully contains 3-7, and 6-6 is fully contained by 4-6. */
 let containsCount = 0;
 

@@ -5,7 +5,7 @@ import { sortNumbers } from '../utils/arrays';
 
 /* "You take some notes (your puzzle input) on the items each monkey currently has, how worried you
  * are about those items, and how the monkey makes decisions based on your worry level. */
-const puzzleInput = readFileSync(path.join(__dirname, '/input.txt'), 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 let monkeyChunks = splitStringMatrix(puzzleInput, '\n\n', '\n  ').filter(line => line[0].length > 0);
 
 type worryFunction = (x: number) => number;

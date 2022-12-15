@@ -1,8 +1,9 @@
 import { readFileSync } from 'fs';
 import { splitStringMatrix } from '../utils/strings';
-import { last, max, sum } from '../utils/arrays';
+import { last, sum } from '../utils/arrays';
+import path from 'path';
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 const instructions: string[][] = splitStringMatrix(puzzleInput);
 
 /* Part 1: "Start by figuring out the signal being sent by the CPU.

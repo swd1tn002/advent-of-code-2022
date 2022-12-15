@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { splitLines } from '../utils/strings';
 import { last } from '../utils/arrays';
+import path from 'path';
 
 interface Move {
     from: number,
@@ -96,7 +97,7 @@ function formatOutput(crates: string[]): string {
     return crates.join('').replace(/\[/g, '').replace(/\]/g, '');
 }
 
-const puzzleInput = readFileSync(__dirname + '/input.txt', 'utf-8');
+const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 const [stackInput, moveInput] = puzzleInput.split('\n\n');
 
 let stacks = parseStacks(stackInput);
