@@ -68,20 +68,21 @@ class Sensor {
             yield new Point(x1, y);
         }
     }
+
+    /**
+     * "Sensor at x=2, y=18: closest beacon is at x=-2, y=15" => new Sensor(Point(2, 18), new Point(-2, 15))
+     */
+    static parse(line: string): Sensor {
+        let [sensorX, sensorY, beaconX, beaconY] = extractNumbers(line);
+        return new Sensor(new Point(sensorX, sensorY), new Point(beaconX, beaconY));
+    }
 }
 
-/**
- * "Sensor at x=2, y=18: closest beacon is at x=-2, y=15" => new Sensor(Point(2, 18), new Point(-2, 15))
- */
-function parseSensor(line: string): Sensor {
-    let [sensorX, sensorY, beaconX, beaconY] = extractNumbers(line);
-    return new Sensor(new Point(sensorX, sensorY), new Point(beaconX, beaconY));
-}
 
 
 function main() {
     const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
-    const sensors = splitLines(puzzleInput).map(parseSensor);
+    const sensors = splitLines(puzzleInput).map(Sensor.parse);
 
     /*
      * Part 1:
