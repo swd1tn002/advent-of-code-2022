@@ -13,6 +13,11 @@ describe('Array utilities', () => {
         assert.equal(min([1, -1, 100, 3, 2]), -1);
     });
 
+    test('Min and max return 0 when there are no elements', () => {
+        assert.equal(min([]), 0);
+        assert.equal(max([]), 0);
+    });
+
     test('Sort numbers returns a sorted copy', () => {
         let arr = [3, 1, 2];
 
@@ -36,6 +41,10 @@ describe('Array utilities', () => {
     test('Last returns the last item of an array', () => {
         assert.equal(last([1, 2, 3, 4, 5, 6]), 6);
         assert.equal(last(['foo', 'bar']), 'bar');
+    });
+
+    test('Last throws an exception when called to an ampty array', () => {
+        assert.throws(() => { last([]) });
     });
 
     test('Transpose transforms rows into columns and vice versa', () => {

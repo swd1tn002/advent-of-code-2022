@@ -217,3 +217,14 @@ Part 1: the number of positions that cannot contain a beacon is 4502208
 Part 2: the distress signal is coming from 3446137,3204480
 Part 2: the distress signal frequency is 13784551204480
 ```
+
+## [Day 16: Proboscidea Volcanium](https://adventofcode.com/2022/day/16)
+
+* 📄 [src/16_proboscidea-volcanium/index.ts](./src/16_proboscidea-volcanium/index.ts)
+
+```
+$ npx ts-node src/16_proboscidea-volcanium
+
+Part 1: you can release 2253 pressure in 30 minutes
+Part 2: you and 🐘 can release 2838 pressure in 26 minutes
+```

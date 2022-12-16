@@ -1,10 +1,13 @@
 export const sum = (arr: number[]): number => arr.reduce((acc, curr) => acc + curr, 0);
 
-export const max = (arr: number[]): number => arr.reduce((maximum, curr) => maximum > curr ? maximum : curr, arr[0]);
+export const max = (arr: number[]): number => arr.reduce((maximum, curr) => maximum > curr ? maximum : curr, arr[0] ?? 0);
 
-export const min = (arr: number[]): number => arr.reduce((minimum, curr) => minimum < curr ? minimum : curr, arr[0]);
+export const min = (arr: number[]): number => arr.reduce((minimum, curr) => minimum < curr ? minimum : curr, arr[0] ?? 0);
 
 export function last<T>(arr: T[]): T {
+    if (arr.length === 0) {
+        throw new Error(`Cannot get last from empty array`);
+    }
     return arr[arr.length - 1];
 }
 
