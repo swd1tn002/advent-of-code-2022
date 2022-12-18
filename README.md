@@ -228,3 +228,19 @@ $ npx ts-node src/16_proboscidea-volcanium
 Part 1: you can release 2253 pressure in 30 minutes
 Part 2: you and 🐘 can release 2838 pressure in 26 minutes
 ```
+
+## [Day 17: Pyroclastic Flow](https://adventofcode.com/2022/day/17)
+
+TODO
+
+
+## [Day 18: Boiling Boulders](https://adventofcode.com/2022/day/18)
+
+* 📄 [src/18_boiling_boulders/index.ts](./src/18_boiling_boulders/index.ts)
+
+```
+$ npx ts-node src/18_boiling_boulders
+
+Part 1: 4192
+Part 2: 2520
+```
