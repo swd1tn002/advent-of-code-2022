@@ -45,19 +45,24 @@ class Box3D {
     }
 }
 
+/**
+ * "To approximate the surface area, count the number of sides of each cube that are not immediately connected to another
+ * cube. So, if your scan were only two adjacent cubes like 1,1,1 and 2,1,1, each cube would have a single side covered
+ * and five sides exposed, a total surface area of 10 sides."
+ */
+function getSurfaceArea(boulderSet: Set<string>): number {
+    let cubes = Array.from(boulderSet).map(Point3D.parse);
 
-function countExteriorArea(boulderSet: Set<string>) {
-    let points = Array.from(boulderSet).map(Point3D.parse);
-
-    // get all sides for all points, and count the ones that do not have a boulder as a neighbor
-    return points.flatMap(p => p.neighbors()).filter(side => {
-        let sideStr = `${side.x},${side.y},${side.z}`;
-        return !boulderSet.has(sideStr)
-    }).length;
+    // Count the total number of sides in the cubes, that do not have another cube as a neighbor
+    return cubes
+        .flatMap(cube => cube.neighbors())
+        .filter(neighbor => {
+            return !boulderSet.has(neighbor.toString())
+        }).length;
 }
 
 /**  Returns a box that surrounds all given points. */
-function getOuterBounds(boulders: Set<string>): Box3D {
+function getSurroundingBox(boulders: Set<string>): Box3D {
     let coords = Array.from(boulders).map(xyz => xyz.split(',').map(n => Number(n)));
     let x = coords.map(c => c[0]);
     let y = coords.map(c => c[1]);
@@ -74,14 +79,11 @@ function main() {
     /* "Because of how quickly the lava is moving, the scan isn't very good; its resolution is quite low and, as a result,
      * it approximates the shape of the lava droplet with 1x1x1 cubes on a 3D grid, each given as its x,y,z position. */
     const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
+
+    // A set of 1x1x1 cubes in the shape, such as "1,1,1" or "2,2,5"
     let boulderSet = new Set(splitLines(puzzleInput));
 
-    /* "To approximate the surface area, count the number of sides of each cube that are not immediately connected to another
-     * cube. So, if your scan were only two adjacent cubes like 1,1,1 and 2,1,1, each cube would have a single side covered
-     * and five sides exposed, a total surface area of 10 sides."
-     */
-    console.log('Part 1:', countExteriorArea(boulderSet));
-
+    console.log('Part 1:', getSurfaceArea(boulderSet));
 
     /* "Something seems off about your calculation. The cooling rate depends on exterior surface area, but your calculation
      * also included the surface area of air pockets trapped in the lava droplet."
@@ -91,13 +93,13 @@ function main() {
      * droplet but never expanding diagonally."
      */
 
-    let bounds = getOuterBounds(boulderSet);
-    let surroundingAir = new Set<string>();
+    let bounds = getSurroundingBox(boulderSet);
 
     /* Visit all air positions that can be accessed from the starting point outside the shape.
-     * All air positions other than these are air pockets inside the given shape. */
+    * All air positions other than these are air pockets inside the given shape. */
     let unvisited = [new Point3D(bounds.x.start, bounds.y.start, bounds.z.start).toString()];
 
+    let surroundingAir = new Set<string>();
     while (unvisited.length > 0) {
         let next = unvisited.pop() as string;
         surroundingAir.add(next);
@@ -129,7 +131,7 @@ function main() {
         }
     }
 
-    let exteriorArea = countExteriorArea(solidBoulder);
+    let exteriorArea = getSurfaceArea(solidBoulder);
     console.log('Part 2:', exteriorArea); // 2520
 }
 
