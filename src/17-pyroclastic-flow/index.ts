@@ -48,15 +48,11 @@ const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8').tri
 let jetPattern = new Circle(puzzleInput.split(''));
 const rockShapes = new Circle(readFileSync(path.join(__dirname, 'rocks.txt'), 'utf-8').split('\n\n'));
 
-console.log(jetPattern.get(0));
-console.log(jetPattern.get(10_000_000));
-console.log(rockShapes);
-
 /* "The tall, vertical chamber is exactly seven units wide." */
-let width = 7;
+const width = 7;
 
+/** Checks whether the given rock is inside bounds and does not hit any part from other rocks. */
 function ok(rock: Rock, parts: Array<string>, width: number): boolean {
-    //console.log({ rock, width });
     if (rock.minX < 0 || width < rock.width + rock.minX || rock.minY <= 0) {
         return false;
     }
@@ -64,21 +60,15 @@ function ok(rock: Rock, parts: Array<string>, width: number): boolean {
 }
 
 
+/** Finds if the given position array has a loop that repeats on the given loop */
+function findLoop(positions: number[], loopSize: number): number | null {
+    let round1 = positions.slice(-2 * loopSize, -1 * loopSize);
+    let round2 = positions.slice(-1 * loopSize);
 
-function findLoop(positions: number[], minLoop: number): number | null {
-    // we need at least two full cycles
-    let maxMultiplier = Math.floor(positions.length / minLoop / 2);
-
-    for (let multiplier = 1; multiplier <= maxMultiplier; multiplier++) {
-        let loopSize = minLoop * multiplier;
-
-        let round1 = positions.slice(-2 * loopSize, -1 * loopSize);
-        let round2 = positions.slice(-1 * loopSize);
-
-        if (equal(round1, round2)) {
-            return loopSize;
-        }
+    if (equal(round1, round2)) {
+        return loopSize;
     }
+
     return null;
 }
 
@@ -88,21 +78,22 @@ function main() {
     let parts = new Array<string>();
     let height = 0;
 
-    // part 2
-    let heights = new Array<number>();
+    // part 2, store history so we can identify when the shape starts to repeat
+    const heights = new Array<number>();
     let positions = new Array<number>();
     let pieces = new Array<number>();
 
     let loopLength = jetPattern.length * rockShapes.length;
+
     let pieceCount = 1_000_000_000_000; // 2022 or 1000000000000
-
-    console.log({ loopLength });
-
-
     let rockIndex = 0;
     let jetIndex = 0;
 
     for (let i = 0; i < pieceCount; i++, rockIndex++) {
+        if (i === 2022) {
+            console.log('Part 1: height is', height);
+        }
+
         /* "Each rock appears so that its left edge is two units away from the left wall and its bottom
         * edge is three units above the highest rock in the room (or the floor, if there isn't one)." */
         let shape = rockShapes.get(rockIndex);
@@ -130,8 +121,8 @@ function main() {
                 // the rock hit an object below, so store its parts in the part collection:
                 rock.parts.forEach(p => parts.push(p));
 
-                // limit to max n parts
-                parts = parts.slice(-100);
+                // make sure the parts array does not grow above 1000 in size
+                parts = parts.slice(-1_000);
 
                 // update the height of the current game area:
                 height = max([height, rock.maxY]);
@@ -148,8 +139,6 @@ function main() {
         let loopSize = findLoop(positions, loopLength);
 
         if (typeof loopSize === 'number') {
-            console.log('Found a loop!', { loopSize });
-
             let startHeight = heights[heights.length - 1 - loopSize];
             let endHeight = heights[heights.length - 1];
             let heightOfLoop = endHeight - startHeight;
@@ -157,7 +146,7 @@ function main() {
 
             let fullLoopsLeft = Math.floor((pieceCount - i + 1) / piecesInLoop);
 
-            console.table({ fullLoopsLeft, positions: positions.length, heights: heights.length, loopHeight: heightOfLoop, loopSize, height, piecesInLoop });
+            // console.table({ fullLoopsLeft, positions: positions.length, heights: heights.length, loopHeight: heightOfLoop, loopSize, height, piecesInLoop });
 
             // increment the height and piece count with the sizes and amounts of loops left:
             let addHeight = heightOfLoop * fullLoopsLeft;
@@ -176,7 +165,7 @@ function main() {
         }
 
     }
-    console.log(height);
+    console.log('Part 2: height is', height);
 }
 
 main();

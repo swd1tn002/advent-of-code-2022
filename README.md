@@ -231,7 +231,15 @@ Part 2: you and 🐘 can release 2838 pressure in 26 minutes
 
 ## [Day 17: Pyroclastic Flow](https://adventofcode.com/2022/day/17)
 
-TODO
+
+* 📄 [src/17-pyroclastic-flow/index.ts](./src/17-pyroclastic-flow/index.ts)
+
+```
+$ npx ts-node src/17-pyroclastic-flow/
+
+Part 1: height is 3219
+Part 2: height is 1582758620701
+```
 
 
 ## [Day 18: Boiling Boulders](https://adventofcode.com/2022/day/18)
