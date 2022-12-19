@@ -42,4 +42,8 @@ export default class Circle<T> {
         let previousIndex = this.content.indexOf(element) - 1;
         return this.get(previousIndex);
     }
+
+    get length(): number {
+        return this.content.length;
+    }
 }

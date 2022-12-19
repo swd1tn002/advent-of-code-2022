@@ -58,3 +58,18 @@ export function reverseRows<T>(matrix: T[][]): T[][] {
 export function zip<T, U>(arr1: T[], arr2: U[]): [T, U][] {
     return arr1.map((v, i) => [v, arr2[i]]);
 }
+
+/**
+ * Returns true if all elements in arr1 equal the ones on arr2.
+ */
+export function equal<T>(arr1: T[], arr2: T[]): boolean {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}

@@ -1,8 +1,9 @@
 import path from 'path';
 import { readFileSync } from 'fs';
 import { splitLines, splitStringMatrix, splitNumberMatrix, extractNumber, extractNumbers } from '../utils/strings';
-import { sum, last, max, min, reverseRows, sortNumbers, splitToChunks, transpose } from '../utils/arrays';
+import { sum, last, max, min, reverseRows, sortNumbers, splitToChunks, transpose, equal } from '../utils/arrays';
 import Circle from '../utils/Circle';
+import { getSystemErrorMap } from 'util';
 
 class Rock {
     public readonly parts = new Array<string>();
@@ -41,21 +42,6 @@ class Rock {
     drop(): Rock {
         return new Rock(this.minY - 1, this.minX, this.shape);
     }
-
-    // overlaps(other: Rock): boolean {
-    //     for (let y = this.minY; y > this.minY - this.height; y--) {
-    //         for (let x = this.minX; x < this.minX + this.width; x++) {
-    //             if (this.covers(y, x) && other.covers(y, x)) {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     return false;
-    // }
-
-    covers(y: number, x: number): boolean {
-        return this.parts.includes(`${y},${x}`);
-    }
 }
 
 const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8').trim();
@@ -69,82 +55,128 @@ console.log(rockShapes);
 /* "The tall, vertical chamber is exactly seven units wide." */
 let width = 7;
 
-function ok(rock: Rock, parts: Set<string>, width: number): boolean {
+function ok(rock: Rock, parts: Array<string>, width: number): boolean {
     //console.log({ rock, width });
     if (rock.minX < 0 || width < rock.width + rock.minX || rock.minY <= 0) {
         return false;
     }
-    return rock.parts.every(p => !parts.has(p));
+    return rock.parts.every(p => !parts.includes(p));
 }
 
-let rockIndex = 0;
-let jetIndex = 0;
 
 
-function getHeight(parts: Set<string>): number {
-    let h = 0;
-    for (let p of parts) {
-        let y = Number(p.split(',')[0])
-        h = max([y, h]);
+function findLoop(positions: number[], minLoop: number): number | null {
+    // we need at least two full cycles
+    let maxMultiplier = Math.floor(positions.length / minLoop / 2);
+
+    for (let multiplier = 1; multiplier <= maxMultiplier; multiplier++) {
+        let loopSize = minLoop * multiplier;
+
+        let round1 = positions.slice(-2 * loopSize, -1 * loopSize);
+        let round2 = positions.slice(-1 * loopSize);
+
+        if (equal(round1, round2)) {
+            return loopSize;
+        }
     }
-    return h;
+    return null;
 }
 
-function draw(rock: Rock, parts: Set<string>) {
-    let all = new Set(parts);
-    rock.parts.forEach(p => all.add(p));
 
-    for (let y = getHeight(all); y > 0; y--) {
-        process.stdout.write('|');
-        for (let x = 0; x < 7; x++) {
-            if (all.has(`${y},${x}`)) {
-                process.stdout.write('#');
-            } else {
-                process.stdout.write(' ');
+function main() {
+
+    let parts = new Array<string>();
+    let height = 0;
+
+    // part 2
+    let heights = new Array<number>();
+    let positions = new Array<number>();
+    let pieces = new Array<number>();
+
+    let loopLength = jetPattern.length * rockShapes.length;
+    let pieceCount = 1_000_000_000_000; // 2022 or 1000000000000
+
+    console.log({ loopLength });
+
+
+    let rockIndex = 0;
+    let jetIndex = 0;
+
+    for (let i = 0; i < pieceCount; i++, rockIndex++) {
+        /* "Each rock appears so that its left edge is two units away from the left wall and its bottom
+        * edge is three units above the highest rock in the room (or the floor, if there isn't one)." */
+        let shape = rockShapes.get(rockIndex);
+        let y = height + 4;
+        let x = 2;
+        let rock = new Rock(y, x, shape);
+
+        for (let moving = true; moving; jetIndex++) {
+            /* "After a rock appears, it alternates between being pushed by a jet of hot gas one unit (in the
+             * direction indicated by the next symbol in the jet pattern) and then falling one unit down." */
+            let jet = jetPattern.get(jetIndex);
+
+            // try pushing, if it succeeds, update the rock state:
+            let pushed = rock.push(jet);
+            if (ok(pushed, parts, width)) {
+                rock = pushed;
             }
+
+            // try dropping: if it succeeds, update the rock state:
+            let dropped = rock.drop();
+            if (ok(dropped, parts, width)) {
+                rock = dropped; // continue to next loop
+            } else {
+
+                // the rock hit an object below, so store its parts in the part collection:
+                rock.parts.forEach(p => parts.push(p));
+
+                // limit to max n parts
+                parts = parts.slice(-100);
+
+                // update the height of the current game area:
+                height = max([height, rock.maxY]);
+                moving = false;
+            }
+
+            // part 2: store state for identifying loops
+            heights.push(height);
+            positions.push(rock.minX);
+            pieces.push(i);
         }
-        console.log('|');
+
+        // try finding a loop
+        let loopSize = findLoop(positions, loopLength);
+
+        if (typeof loopSize === 'number') {
+            console.log('Found a loop!', { loopSize });
+
+            let startHeight = heights[heights.length - 1 - loopSize];
+            let endHeight = heights[heights.length - 1];
+            let heightOfLoop = endHeight - startHeight;
+            let piecesInLoop = pieces[pieces.length - 1] - pieces[pieces.length - 1 - loopSize];
+
+            let fullLoopsLeft = Math.floor((pieceCount - i + 1) / piecesInLoop);
+
+            console.table({ fullLoopsLeft, positions: positions.length, heights: heights.length, loopHeight: heightOfLoop, loopSize, height, piecesInLoop });
+
+            // increment the height and piece count with the sizes and amounts of loops left:
+            let addHeight = heightOfLoop * fullLoopsLeft;
+            height += addHeight;
+            i += fullLoopsLeft * piecesInLoop;
+
+            // increment the y coordinates of the pieces
+            parts = parts.map(p => {
+                let [y, x] = p.split(',').map(n => Number(n))
+                return `${y + addHeight},${x}`;
+            })
+
+            // reset state collectors
+            pieces = [];
+            positions = [];
+        }
+
     }
-    console.log('+-------+');
+    console.log(height);
 }
 
-let parts = new Set<string>();
-let height = 0;
-
-for (let i = 0; i < 2022; i++) {
-    /* "Each rock appears so that its left edge is two units away from the left wall and its bottom
-     * edge is three units above the highest rock in the room (or the floor, if there isn't one)." */
-    let shape = rockShapes.get(rockIndex++);
-    let y = height + 4;
-    let x = 2;
-    let rock = new Rock(y, x, shape);
-
-    let moving = true;
-    while (moving) {
-        //draw(rock, parts);
-
-        /* "After a rock appears, it alternates between being pushed by a jet of hot gas one unit (in the
-         * direction indicated by the next symbol in the jet pattern) and then falling one unit down." */
-        let jet = jetPattern.get(jetIndex++);
-        let pushed = rock.push(jet);
-
-        //console.log(jet);
-
-        if (ok(pushed, parts, width)) {
-            //console.log('moved');
-            rock = pushed;
-        }
-
-        let dropped = rock.drop();
-
-        if (ok(dropped, parts, width)) {
-            // continue with the rock that is dropped
-            rock = dropped;
-        } else {
-            rock.parts.forEach(p => parts.add(p));
-            height = max([height, rock.maxY]);
-            moving = false;
-        }
-    }
-}
-console.log(height); // 3219
+main();
