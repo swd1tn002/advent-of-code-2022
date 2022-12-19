@@ -252,3 +252,14 @@ $ npx ts-node src/18_boiling_boulders
 Part 1: 4192
 Part 2: 2520
 ```
+
+## [Day 19: Not Enough Minerals](https://adventofcode.com/2022/day/19)
+
+* 📄 [src/19_not-enough-minerals/index.ts](./src/19_not-enough-minerals/index.ts)
+
+```
+$ npx ts-node src/19_not-enough-minerals
+
+Part 1: the sum of quality levels is 978
+Part 2: largest geodes multiplied together are 15939
+```

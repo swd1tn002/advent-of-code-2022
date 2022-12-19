@@ -1,40 +1,10 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { last, max, min, reverseRows, sortNumbers, splitToChunks, transpose } from '../utils/arrays';
+import { last, max } from '../utils/arrays';
+import { splitLines, extractNumbers } from '../utils/strings';
 
-console.time('⏱');
 
-const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
-
-class BestWallet {
-    private _best: Wallet;
-
-    constructor(initial: Wallet) {
-        this._best = initial;
-    }
-
-    get best(): Wallet {
-        return this._best;
-    }
-
-    update(other: Wallet) {
-        if (other.gte(this.best)) {
-            this._best = other;
-        }
-        return this._best;
-    }
-
-    canImprove(other: Wallet, time: number, robots: Robots) {
-        let max = other.geode;
-        for (let i = 0; i < time; i++) {
-            // assume that each time step there is one more robot creating geodes
-            max += i + robots.geodeRobots;
-        }
-        return max >= this.best.geode;
-    }
-}
-
-class Wallet {
+class Minerals {
     constructor(
         readonly ore: number,
         readonly clay: number,
@@ -43,22 +13,27 @@ class Wallet {
     ) {
     }
 
-    plus(other: Wallet): Wallet {
-        return new Wallet(this.ore + other.ore, this.clay + other.clay, this.obsidian + other.obsidian, this.geode + other.geode);
+    plus(other: Minerals): Minerals {
+        return new Minerals(this.ore + other.ore, this.clay + other.clay, this.obsidian + other.obsidian, this.geode + other.geode);
     }
 
-    minus(other: Wallet): Wallet {
-        return new Wallet(this.ore - other.ore, this.clay - other.clay, this.obsidian - other.obsidian, this.geode - other.geode);
+    minus(other: Minerals): Minerals {
+        return new Minerals(this.ore - other.ore, this.clay - other.clay, this.obsidian - other.obsidian, this.geode - other.geode);
     }
 
-    gte(other: Wallet): boolean {
+    /** Returns whether this set has more or an equal amount of each miner than the other set. */
+    gte(other: Minerals): boolean {
         return this.ore >= other.ore &&
             this.clay >= other.clay &&
             this.obsidian >= other.obsidian &&
             this.geode >= other.geode;
     }
 
-    static compare(w1: Wallet, w2: Wallet): number {
+    /**
+     * Returns -1, 0 or 1 depending on the ordering of two sets of minerals.
+     * Compares starting from the most valuable to the least valuable.
+     */
+    static compare(w1: Minerals, w2: Minerals): number {
         if (w1.geode !== w2.geode) {
             return w1.geode - w2.geode;
         }
@@ -75,8 +50,11 @@ class Wallet {
     }
 }
 
-type Cache = { [key: string]: Wallet };
-
+/**
+ * "Each robot can collect 1 of its resource type per minute. It also takes one minute for the
+ * robot factory (also conveniently from your pack) to construct any type of robot, although
+ * it consumes the necessary resources available when construction begins."
+ */
 class Robots {
     constructor(
         readonly oreRobots: number,
@@ -86,241 +64,242 @@ class Robots {
     }
 
     /** "Each robot can collect 1 of its resource type per minute." */
-    collect(): Wallet {
-        return new Wallet(this.oreRobots, this.clayRobots, this.obsidianRobots, this.geodeRobots);
+    collect(): Minerals {
+        return new Minerals(this.oreRobots, this.clayRobots, this.obsidianRobots, this.geodeRobots);
+    }
+
+    plusOre() {
+        return new Robots(this.oreRobots + 1, this.clayRobots, this.obsidianRobots, this.geodeRobots);
+    }
+
+    plusClay() {
+        return new Robots(this.oreRobots, this.clayRobots + 1, this.obsidianRobots, this.geodeRobots);
+    }
+
+    plusObsidian() {
+        return new Robots(this.oreRobots, this.clayRobots, this.obsidianRobots + 1, this.geodeRobots);
+    }
+
+    plusGeode() {
+        return new Robots(this.oreRobots, this.clayRobots, this.obsidianRobots, this.geodeRobots + 1);
     }
 }
 
-const emptyWallet = new Wallet(0, 0, 0, 0);
-const oneOreRobot = new Robots(1, 0, 0, 0);
-
-
+/**
+ * "The robot factory has many blueprints (your puzzle input) you can choose from, but once you've configured
+ * it with a blueprint, you can't change it. You'll need to work out which blueprint is best."
+ */
 class Blueprint {
     private _maxOre: number;
     private _maxClay: number;
     private _maxObsidian: number;
 
     constructor(readonly id: number,
-        readonly oreCost: Wallet,
-        readonly clayCost: Wallet,
-        readonly obsidianCost: Wallet,
-        readonly geodeCost: Wallet) {
+        readonly oreCost: Minerals,
+        readonly clayCost: Minerals,
+        readonly obsidianCost: Minerals,
+        readonly geodeCost: Minerals) {
 
-        this._maxOre = max([this.oreCost, this.clayCost, this.obsidianCost, this.geodeCost].map(w => w.ore));
-        this._maxClay = max([this.oreCost, this.clayCost, this.obsidianCost, this.geodeCost].map(w => w.clay));
-        this._maxObsidian = max([this.oreCost, this.clayCost, this.obsidianCost, this.geodeCost].map(w => w.obsidian));
-    }
-
-    canBuildOreRobot(w: Wallet): boolean {
-        return w.gte(this.oreCost);
-    }
-
-    canBuildClayRobot(w: Wallet): boolean {
-        return w.gte(this.clayCost);
-    }
-
-    canBuildObsidianRobot(w: Wallet,): boolean {
-        return w.gte(this.obsidianCost);
-    }
-    canBuildGeodeRobot(w: Wallet): boolean {
-        return w.gte(this.geodeCost);
-    }
-
-    buildOreRobot(w: Wallet, robots: Robots): [Wallet, Robots] {
-        return [w.minus(this.oreCost), new Robots(robots.oreRobots + 1, robots.clayRobots, robots.obsidianRobots, robots.geodeRobots)];
-    }
-
-    buildClayRobot(w: Wallet, robots: Robots): [Wallet, Robots] {
-        return [w.minus(this.clayCost), new Robots(robots.oreRobots, robots.clayRobots + 1, robots.obsidianRobots, robots.geodeRobots)];
-    }
-
-    buildObsidianRobot(w: Wallet, robots: Robots): [Wallet, Robots] {
-        return [w.minus(this.obsidianCost), new Robots(robots.oreRobots, robots.clayRobots, robots.obsidianRobots + 1, robots.geodeRobots)];
-    }
-
-    buildGeodeRobot(w: Wallet, robots: Robots): [Wallet, Robots] {
-        return [w.minus(this.geodeCost), new Robots(robots.oreRobots, robots.clayRobots, robots.obsidianRobots, robots.geodeRobots + 1)];
+        // maximum number of each mineral is stored to prevent collecting too much of a specific mineral
+        let all = [this.oreCost, this.clayCost, this.obsidianCost, this.geodeCost];
+        this._maxOre = max(all.map(w => w.ore));
+        this._maxClay = max(all.map(w => w.clay));
+        this._maxObsidian = max(all.map(w => w.obsidian));
     }
 
     /**
-     * "Determine the quality level of each blueprint by multiplying that blueprint's ID number with the largest
-     * number of geodes that can be opened in 24 minutes using that blueprint."
+     * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
+     * If building succeeds, will continue recursively building all other bots.
      */
-    getQualityLevel(time: number): number {
-        let wallet = this.maximizeGeodes(emptyWallet, time, oneOreRobot, {});
-        console.log(wallet);
-        return this.id * wallet.geode;
+    private buildOreRobot(w: Minerals, robots: Robots, time: number): Minerals {
+        if (!this.hasUseForOre(w, time)) {
+            return w;
+        }
+        for (let t = time; t > 0; t--) {
+            if (this.canBuildOreRobot(w)) {
+                w = w.minus(this.oreCost).plus(robots.collect());
+                robots = robots.plusOre();
+                return this.maximizeGeodes(w, t - 1, robots);
+            }
+            w = w.plus(robots.collect());
+        }
+        return w;
     }
 
-    maximizeGeodes(wallet: Wallet, timeLeft: number, robots: Robots, cache: Cache): Wallet {
-        let cacheKey = JSON.stringify({ wallet, timeLeft, robots });
-        if (cacheKey in cache) {
-            //console.log(cacheKey);
-            //console.log('cache hit')
-            return cache[cacheKey];
+    /**
+     * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
+     * If building succeeds, will continue recursively building all other bots.
+     */
+    private buildClayRobot(w: Minerals, robots: Robots, time: number): Minerals {
+        if (!this.hasUseForClay(w, time)) {
+            return w;
         }
-
-        // Each robot can collect 1 of its resource type per minute.
-        let income = robots.collect();
-
-        if (timeLeft === 1) {
-            // just a minute left, no need to build anything
-            return wallet.plus(income);
+        for (let t = time; t > 0; t--) {
+            if (this.canBuildClayRobot(w)) {
+                w = w.minus(this.clayCost).plus(robots.collect());
+                robots = robots.plusClay();
+                return this.maximizeGeodes(w, t - 1, robots);
+            }
+            w = w.plus(robots.collect());
         }
-
-        let wallets = new Array<Wallet>();
-
-        // It also takes one minute for the robot factory to construct any type of robot,
-        // although it consumes the necessary resources available when construction begins.
-        if (this.canBuildGeodeRobot(wallet)) {
-            let [w, r] = this.buildGeodeRobot(wallet, robots);
-            wallets.push(this.maximizeGeodes(w.plus(income), timeLeft - 1, r, cache));
-        } else {
-
-            if (this.canBuildObsidianRobot(wallet) && this.hasUseForObsidian(wallet, timeLeft)) {
-                let [w, r] = this.buildObsidianRobot(wallet, robots);
-                wallets.push(this.maximizeGeodes(w.plus(income), timeLeft - 1, r, cache));
-            }
-            if (this.canBuildClayRobot(wallet) && this.hasUseForClay(wallet, timeLeft)) {
-                let [w, r] = this.buildClayRobot(wallet, robots);
-                wallets.push(this.maximizeGeodes(w.plus(income), timeLeft - 1, r, cache));
-            }
-            if (this.canBuildOreRobot(wallet) && this.hasUseForOre(wallet, timeLeft)) {
-                let [w, r] = this.buildOreRobot(wallet, robots);
-                wallets.push(this.maximizeGeodes(w.plus(income), timeLeft - 1, r, cache));
-            }
-
-            // do not build any robots... instead continue with the current robots to save more minerals for other bots
-            wallets.push(this.maximizeGeodes(wallet.plus(income), timeLeft - 1, robots, cache));
-
-        }
-
-        let best = last(wallets.sort(Wallet.compare));
-        cache[cacheKey] = best;
-        return best;
+        return w;
     }
 
-    /** Checks if the wallet already contains resources that cannot be consumed in given time. */
-    private hasUseForOre(w: Wallet, time: number): boolean {
+    /**
+     * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
+     * If building succeeds, will continue recursively building all other bots.
+     */
+    private buildObsidianRobot(w: Minerals, robots: Robots, time: number): Minerals {
+        if (!this.hasUseForObsidian(w, time)) {
+            return w;
+        }
+        for (let t = time; t > 0; t--) {
+            if (this.canBuildObsidianRobot(w)) {
+                w = w.minus(this.obsidianCost).plus(robots.collect());
+                robots = robots.plusObsidian();
+                return this.maximizeGeodes(w, t - 1, robots);
+            }
+            w = w.plus(robots.collect());
+        }
+        return w;
+    }
+
+    /**
+     * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
+     * If building succeeds, will continue recursively building all other bots.
+     */
+    private buildGeodeRobot(w: Minerals, robots: Robots, time: number): Minerals {
+        for (let t = time; t > 0; t--) {
+            if (this.canBuildGeodeRobot(w)) {
+                w = w.minus(this.geodeCost).plus(robots.collect());
+                robots = robots.plusGeode();
+                return this.maximizeGeodes(w, t - 1, robots);
+            }
+            w = w.plus(robots.collect());
+        }
+        return w;
+    }
+
+    /** Consumes the remaining time collecting the harvest from existing robots, without creating new ones. */
+    private buildNothing(w: Minerals, robots: Robots, time: number): Minerals {
+        for (let t = time; t > 0; t--) {
+            w = w.plus(robots.collect());
+        }
+        return w;
+    }
+
+    private canBuildOreRobot(w: Minerals): boolean {
+        return w.gte(this.oreCost);
+    }
+
+    private canBuildClayRobot(w: Minerals): boolean {
+        return w.gte(this.clayCost);
+    }
+
+    private canBuildObsidianRobot(w: Minerals,): boolean {
+        return w.gte(this.obsidianCost);
+    }
+
+    private canBuildGeodeRobot(w: Minerals): boolean {
+        return w.gte(this.geodeCost);
+    }
+
+    /**
+     * "You need to figure out which blueprint would maximize the number of opened geodes after X
+     * minutes by figuring out which robots to build and when to build them."
+     */
+    public maximizeGeodes(minerals: Minerals, timeLeft: number, robots: Robots): Minerals {
+        if (timeLeft === 0) {
+            return minerals;
+        }
+
+        if (this.canBuildGeodeRobot(minerals)) {
+            // If it's possible to build a geode robot, it's always the best thing to do
+            return this.buildGeodeRobot(minerals, robots, timeLeft);
+        }
+
+        // Iterate all possible next states where a new robot is built:
+        let geodeRobot = this.buildGeodeRobot(minerals, robots, timeLeft);
+        let obsidianRobot = this.buildObsidianRobot(minerals, robots, timeLeft);
+        let clayRobot = this.buildClayRobot(minerals, robots, timeLeft);
+        let oreRobot = this.buildOreRobot(minerals, robots, timeLeft);
+
+        // Also consider the scenario where no robots are built:
+        let buildNothing = this.buildNothing(minerals, robots, timeLeft);
+
+        return last([geodeRobot, obsidianRobot, clayRobot, oreRobot, buildNothing].sort(Minerals.compare));
+    }
+
+    /** Checks if there is any use for more of the same mineral type. */
+    private hasUseForOre(w: Minerals, time: number): boolean {
         return w.ore < this._maxOre * time;
     }
 
-    /** Checks if the wallet already contains resources that cannot be consumed in given time. */
-    private hasUseForClay(w: Wallet, time: number): boolean {
+    /** Checks if there is any use for more of the same mineral type. */
+    private hasUseForClay(w: Minerals, time: number): boolean {
         return w.clay < this._maxClay * time;
     }
 
-    /** Checks if the wallet already contains resources that cannot be consumed in given time. */
-    private hasUseForObsidian(w: Wallet, time: number): boolean {
+    /** Checks if there is any use for more of the same mineral type. */
+    private hasUseForObsidian(w: Minerals, time: number): boolean {
         return w.obsidian < this._maxObsidian * time;
+    }
+
+    /**
+     * @param input Example: "Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 4 ore. Each obsidian robot costs 4 ore and 14 clay. Each geode robot costs 3 ore and 16 obsidian."
+     */
+    static parse(input: string): Blueprint {
+        let [id, ore, clay, obs1, obs2, geo1, geo2] = extractNumbers(input.replace(/\./g, ''));
+        return new Blueprint(id,
+            new Minerals(ore, 0, 0, 0),
+            new Minerals(clay, 0, 0, 0),
+            new Minerals(obs1, obs2, 0, 0),
+            new Minerals(geo1, 0, geo2, 0)
+        );
     }
 }
 
+function main() {
+    /* "Fortunately, you have exactly one ore-collecting robot in your pack that you can use to kickstart the whole operation." */
+    const initialRobots = new Robots(1, 0, 0, 0);
+    const initialMinerals = new Minerals(0, 0, 0, 0);
+
+    const puzzleInput = splitLines(readFileSync(path.join(__dirname, 'input.txt'), 'utf-8'));
+    let blueprints = puzzleInput.map(Blueprint.parse);
+
+    /**
+     * Part 1:
+     * "Determine the quality level of each blueprint by multiplying that blueprint's ID number with the largest
+     * number of geodes that can be opened in 24 minutes using that blueprint."
+     */
+    let sum = 0;
+    let timePart1 = 24;
+
+    blueprints.forEach(b => {
+        let quality = b.maximizeGeodes(initialMinerals, timePart1, initialRobots).geode * b.id;
+        sum += quality;
+    });
+
+    console.log('Part 1: the sum of quality levels is', sum); // Part 1: 978
 
 
+    /**
+     * Part 2:
+     *
+     * "While you were choosing the best blueprint, the elephants found some food on their own, so you're not
+     * in as much of a hurry; you figure you probably have 32 minutes before the wind changes direction again
+     * and you'll need to get out of range of the erupting volcano."
+     */
+    let timePart2 = 32;
 
-`Blueprint 1:
-  Each ore robot costs 4 ore.
-  Each clay robot costs 2 ore.
-  Each obsidian robot costs 3 ore and 14 clay.
-  Each geode robot costs 2 ore and 7 obsidian.
+    /* "for each of the first three blueprints, determine the largest number of geodes you could open;
+     * then, multiply these three values together." */
+    let part2 = blueprints
+        .slice(0, 3)
+        .map(b => b.maximizeGeodes(initialMinerals, timePart2, initialRobots))
+        .reduce((acc, result) => acc * result.geode, 1);
 
-  Blueprint 2:
-  Each ore robot costs 2 ore.
-  Each clay robot costs 3 ore.
-  Each obsidian robot costs 3 ore and 8 clay.
-  Each geode robot costs 3 ore and 12 obsidian.`
+    console.log('Part 2: largest geodes multiplied together are', part2); // 15939
+}
 
-let b1 = new Blueprint(1,
-    new Wallet(4, 0, 0, 0),
-    new Wallet(2, 0, 0, 0),
-    new Wallet(3, 14, 0, 0),
-    new Wallet(2, 0, 7, 0)
-);
-let b2 = new Blueprint(2,
-    new Wallet(2, 0, 0, 0),
-    new Wallet(3, 0, 0, 0),
-    new Wallet(3, 8, 0, 0),
-    new Wallet(3, 0, 12, 0)
-);
-
-
-let blu1 = new Blueprint(1, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 14, 0, 0), new Wallet(3, 0, 16, 0));
-let blu2 = new Blueprint(2, new Wallet(4, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(2, 5, 0, 0), new Wallet(2, 0, 10, 0));
-let blu3 = new Blueprint(3, new Wallet(3, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(3, 20, 0, 0), new Wallet(2, 0, 12, 0));
-let blu4 = new Blueprint(4, new Wallet(3, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 6, 0, 0), new Wallet(2, 0, 20, 0));
-let blu5 = new Blueprint(5, new Wallet(2, 0, 0, 0), new Wallet(2, 0, 0, 0), new Wallet(2, 20, 0, 0), new Wallet(2, 0, 14, 0));
-let blu6 = new Blueprint(6, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(2, 14, 0, 0), new Wallet(4, 0, 19, 0));
-let blu7 = new Blueprint(7, new Wallet(3, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 17, 0, 0), new Wallet(3, 0, 7, 0));
-let blu8 = new Blueprint(8, new Wallet(2, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 13, 0, 0), new Wallet(3, 0, 11, 0));
-let blu9 = new Blueprint(9, new Wallet(2, 0, 0, 0), new Wallet(2, 0, 0, 0), new Wallet(2, 17, 0, 0), new Wallet(2, 0, 10, 0));
-let blu10 = new Blueprint(10, new Wallet(2, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 19, 0, 0), new Wallet(4, 0, 13, 0));
-let blu11 = new Blueprint(11, new Wallet(4, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(2, 10, 0, 0), new Wallet(4, 0, 10, 0));
-let blu12 = new Blueprint(12, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 17, 0, 0), new Wallet(4, 0, 20, 0));
-let blu13 = new Blueprint(13, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(2, 17, 0, 0), new Wallet(3, 0, 11, 0));
-let blu14 = new Blueprint(14, new Wallet(2, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 20, 0, 0), new Wallet(2, 0, 17, 0));
-let blu15 = new Blueprint(15, new Wallet(4, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(4, 19, 0, 0), new Wallet(4, 0, 12, 0));
-let blu16 = new Blueprint(16, new Wallet(3, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 18, 0, 0), new Wallet(4, 0, 19, 0));
-let blu17 = new Blueprint(17, new Wallet(2, 0, 0, 0), new Wallet(2, 0, 0, 0), new Wallet(2, 8, 0, 0), new Wallet(2, 0, 14, 0));
-let blu18 = new Blueprint(18, new Wallet(4, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(2, 14, 0, 0), new Wallet(2, 0, 7, 0));
-let blu19 = new Blueprint(19, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(2, 14, 0, 0), new Wallet(4, 0, 15, 0));
-let blu20 = new Blueprint(20, new Wallet(3, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 14, 0, 0), new Wallet(4, 0, 10, 0));
-let blu21 = new Blueprint(21, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 7, 0, 0), new Wallet(2, 0, 16, 0));
-let blu22 = new Blueprint(22, new Wallet(3, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(3, 19, 0, 0), new Wallet(3, 0, 19, 0));
-let blu23 = new Blueprint(23, new Wallet(2, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 20, 0, 0), new Wallet(2, 0, 16, 0));
-let blu24 = new Blueprint(24, new Wallet(2, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 19, 0, 0), new Wallet(2, 0, 18, 0));
-let blu25 = new Blueprint(25, new Wallet(3, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(3, 17, 0, 0), new Wallet(4, 0, 8, 0));
-let blu26 = new Blueprint(26, new Wallet(3, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(4, 20, 0, 0), new Wallet(4, 0, 16, 0));
-let blu27 = new Blueprint(27, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 20, 0, 0), new Wallet(2, 0, 10, 0));
-let blu28 = new Blueprint(28, new Wallet(4, 0, 0, 0), new Wallet(3, 0, 0, 0), new Wallet(3, 10, 0, 0), new Wallet(3, 0, 10, 0));
-let blu29 = new Blueprint(29, new Wallet(4, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(2, 9, 0, 0), new Wallet(3, 0, 15, 0));
-let blu30 = new Blueprint(30, new Wallet(3, 0, 0, 0), new Wallet(4, 0, 0, 0), new Wallet(3, 19, 0, 0), new Wallet(3, 0, 8, 0));
-
-
-let time = 24;
-
-let blueprints = [blu1,
-    blu2,
-    blu3,
-    blu4,
-    blu5,
-    blu6,
-    blu7,
-    blu8,
-    blu9,
-    blu10,
-    blu11,
-    blu12,
-    blu13,
-    blu14,
-    blu15,
-    blu16,
-    blu17,
-    blu18,
-    blu19,
-    blu20,
-    blu21,
-    blu22,
-    blu23,
-    blu24,
-    blu25,
-    blu26,
-    blu27,
-    blu28,
-    blu29,
-    blu30];
-
-blueprints = [b1, b2];
-//console.log(b1.getQualityLevel(time));
-//console.log(b2.getQualityLevel(time));
-let sum = 0;
-blueprints.forEach(b => {
-    let quality = b.getQualityLevel(time);
-    sum += quality;
-    console.log(quality);
-    console.timeLog('⏱');
-});
-
-console.log({ sum }); // 747 is too low, 976 is too low
-
-console.timeEnd('⏱');
+main();
