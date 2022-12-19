@@ -55,7 +55,7 @@ class Minerals {
  * robot factory (also conveniently from your pack) to construct any type of robot, although
  * it consumes the necessary resources available when construction begins."
  */
-class Robots {
+class RobotFleet {
     constructor(
         readonly oreRobots: number,
         readonly clayRobots: number,
@@ -68,20 +68,20 @@ class Robots {
         return new Minerals(this.oreRobots, this.clayRobots, this.obsidianRobots, this.geodeRobots);
     }
 
-    plusOre() {
-        return new Robots(this.oreRobots + 1, this.clayRobots, this.obsidianRobots, this.geodeRobots);
+    addOreRobot() {
+        return new RobotFleet(this.oreRobots + 1, this.clayRobots, this.obsidianRobots, this.geodeRobots);
     }
 
-    plusClay() {
-        return new Robots(this.oreRobots, this.clayRobots + 1, this.obsidianRobots, this.geodeRobots);
+    addClayRobot() {
+        return new RobotFleet(this.oreRobots, this.clayRobots + 1, this.obsidianRobots, this.geodeRobots);
     }
 
-    plusObsidian() {
-        return new Robots(this.oreRobots, this.clayRobots, this.obsidianRobots + 1, this.geodeRobots);
+    addObsidianRobot() {
+        return new RobotFleet(this.oreRobots, this.clayRobots, this.obsidianRobots + 1, this.geodeRobots);
     }
 
-    plusGeode() {
-        return new Robots(this.oreRobots, this.clayRobots, this.obsidianRobots, this.geodeRobots + 1);
+    addGeodeRobot() {
+        return new RobotFleet(this.oreRobots, this.clayRobots, this.obsidianRobots, this.geodeRobots + 1);
     }
 }
 
@@ -111,14 +111,14 @@ class Blueprint {
      * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
      * If building succeeds, will continue recursively building all other bots.
      */
-    private buildOreRobot(w: Minerals, robots: Robots, time: number): Minerals {
+    private buildOreRobot(w: Minerals, robots: RobotFleet, time: number): Minerals {
         if (!this.hasUseForOre(w, time)) {
             return w;
         }
         for (let t = time; t > 0; t--) {
             if (this.canBuildOreRobot(w)) {
                 w = w.minus(this.oreCost).plus(robots.collect());
-                robots = robots.plusOre();
+                robots = robots.addOreRobot();
                 return this.maximizeGeodes(w, t - 1, robots);
             }
             w = w.plus(robots.collect());
@@ -130,14 +130,14 @@ class Blueprint {
      * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
      * If building succeeds, will continue recursively building all other bots.
      */
-    private buildClayRobot(w: Minerals, robots: Robots, time: number): Minerals {
+    private buildClayRobot(w: Minerals, robots: RobotFleet, time: number): Minerals {
         if (!this.hasUseForClay(w, time)) {
             return w;
         }
         for (let t = time; t > 0; t--) {
             if (this.canBuildClayRobot(w)) {
                 w = w.minus(this.clayCost).plus(robots.collect());
-                robots = robots.plusClay();
+                robots = robots.addClayRobot();
                 return this.maximizeGeodes(w, t - 1, robots);
             }
             w = w.plus(robots.collect());
@@ -149,14 +149,14 @@ class Blueprint {
      * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
      * If building succeeds, will continue recursively building all other bots.
      */
-    private buildObsidianRobot(w: Minerals, robots: Robots, time: number): Minerals {
+    private buildObsidianRobot(w: Minerals, robots: RobotFleet, time: number): Minerals {
         if (!this.hasUseForObsidian(w, time)) {
             return w;
         }
         for (let t = time; t > 0; t--) {
             if (this.canBuildObsidianRobot(w)) {
                 w = w.minus(this.obsidianCost).plus(robots.collect());
-                robots = robots.plusObsidian();
+                robots = robots.addObsidianRobot();
                 return this.maximizeGeodes(w, t - 1, robots);
             }
             w = w.plus(robots.collect());
@@ -168,11 +168,11 @@ class Blueprint {
      * Collects more minerals with the current robots until a new robot can be built or all time is consumed.
      * If building succeeds, will continue recursively building all other bots.
      */
-    private buildGeodeRobot(w: Minerals, robots: Robots, time: number): Minerals {
+    private buildGeodeRobot(w: Minerals, robots: RobotFleet, time: number): Minerals {
         for (let t = time; t > 0; t--) {
             if (this.canBuildGeodeRobot(w)) {
                 w = w.minus(this.geodeCost).plus(robots.collect());
-                robots = robots.plusGeode();
+                robots = robots.addGeodeRobot();
                 return this.maximizeGeodes(w, t - 1, robots);
             }
             w = w.plus(robots.collect());
@@ -181,7 +181,7 @@ class Blueprint {
     }
 
     /** Consumes the remaining time collecting the harvest from existing robots, without creating new ones. */
-    private buildNothing(w: Minerals, robots: Robots, time: number): Minerals {
+    private buildNothing(w: Minerals, robots: RobotFleet, time: number): Minerals {
         for (let t = time; t > 0; t--) {
             w = w.plus(robots.collect());
         }
@@ -208,7 +208,7 @@ class Blueprint {
      * "You need to figure out which blueprint would maximize the number of opened geodes after X
      * minutes by figuring out which robots to build and when to build them."
      */
-    public maximizeGeodes(minerals: Minerals, timeLeft: number, robots: Robots): Minerals {
+    public maximizeGeodes(minerals: Minerals, timeLeft: number, robots: RobotFleet): Minerals {
         if (timeLeft === 0) {
             return minerals;
         }
@@ -261,7 +261,7 @@ class Blueprint {
 
 function main() {
     /* "Fortunately, you have exactly one ore-collecting robot in your pack that you can use to kickstart the whole operation." */
-    const initialRobots = new Robots(1, 0, 0, 0);
+    const initialRobots = new RobotFleet(1, 0, 0, 0);
     const initialMinerals = new Minerals(0, 0, 0, 0);
 
     const puzzleInput = splitLines(readFileSync(path.join(__dirname, 'input.txt'), 'utf-8'));
