@@ -69,4 +69,9 @@ describe('String utilities', () => {
         assert.deepEqual(numbers, [-1, -2, -3, -4, -42]);
     });
 
+    test('Extract numbers from day 19 input', () => {
+        let input = 'Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 4 ore. Each obsidian robot costs 4 ore and 14 clay. Each geode robot costs 3 ore and 16 obsidian.'.replace(/\./g, '');
+
+        assert.deepEqual(extractNumbers(input), [1, 4, 4, 4, 14, 3, 16]);
+    })
 });
