@@ -63,8 +63,11 @@ export function zip<T, U>(arr1: T[], arr2: U[]): [T, U][] {
  * Returns true if all elements in arr1 equal the ones on arr2.
  */
 export function equal<T>(arr1: T[], arr2: T[]): boolean {
-    if (arr1.length !== arr2.length) {
+    if (!Array.isArray(arr1) || !Array.isArray(arr2) || arr1.length !== arr2.length) {
         return false;
+    }
+    if (arr1 === arr2) {
+        return true;
     }
     for (let i = 0; i < arr1.length; i++) {
         if (arr1[i] !== arr2[i]) {
