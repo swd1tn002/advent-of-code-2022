@@ -1,9 +1,7 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { splitLines, splitStringMatrix, splitNumberMatrix, extractNumber, extractNumbers } from '../utils/strings';
-import { sum, last, max, min, reverseRows, sortNumbers, splitToChunks, transpose, equal } from '../utils/arrays';
+import { max, equal } from '../utils/arrays';
 import Circle from '../utils/Circle';
-import { getSystemErrorMap } from 'util';
 
 class Rock {
     public readonly parts = new Array<string>();
@@ -45,7 +43,7 @@ class Rock {
 }
 
 const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8').trim();
-let jetPattern = new Circle(puzzleInput.split(''));
+const jetPattern = new Circle(puzzleInput.split(''));
 const rockShapes = new Circle(readFileSync(path.join(__dirname, 'rocks.txt'), 'utf-8').split('\n\n'));
 
 /* "The tall, vertical chamber is exactly seven units wide." */
@@ -81,17 +79,22 @@ function main() {
     // part 2, store history so we can identify when the shape starts to repeat
     const heights = new Array<number>();
     let positions = new Array<number>();
-    let pieces = new Array<number>();
+    let pieceCounts = new Array<number>();
 
     let loopLength = jetPattern.length * rockShapes.length;
 
-    let pieceCount = 1_000_000_000_000; // 2022 or 1000000000000
+    /* "The elephants are not impressed by your simulation. They demand to know how tall the tower will be
+     * after 1000000000000 rocks have stopped!" */
+    let pieceCount = 1_000_000_000_000;
+
     let rockIndex = 0;
     let jetIndex = 0;
 
     for (let i = 0; i < pieceCount; i++, rockIndex++) {
+        /* "To prove to the elephants your simulation is accurate, they want to know how tall the
+         * tower will get after 2022 rocks have stopped " */
         if (i === 2022) {
-            console.log('Part 1: height is', height);
+            console.log('Part 1: height is', height); // 3219
         }
 
         /* "Each rock appears so that its left edge is two units away from the left wall and its bottom
@@ -132,7 +135,7 @@ function main() {
             // part 2: store state for identifying loops
             heights.push(height);
             positions.push(rock.minX);
-            pieces.push(i);
+            pieceCounts.push(i);
         }
 
         // try finding a loop
@@ -142,7 +145,7 @@ function main() {
             let startHeight = heights[heights.length - 1 - loopSize];
             let endHeight = heights[heights.length - 1];
             let heightOfLoop = endHeight - startHeight;
-            let piecesInLoop = pieces[pieces.length - 1] - pieces[pieces.length - 1 - loopSize];
+            let piecesInLoop = pieceCounts[pieceCounts.length - 1] - pieceCounts[pieceCounts.length - 1 - loopSize];
 
             let fullLoopsLeft = Math.floor((pieceCount - i + 1) / piecesInLoop);
 
@@ -160,12 +163,12 @@ function main() {
             })
 
             // reset state collectors
-            pieces = [];
+            pieceCounts = [];
             positions = [];
         }
 
     }
-    console.log('Part 2: height is', height);
+    console.log('Part 2: height is', height); // 1582758620701
 }
 
 main();
