@@ -87,7 +87,7 @@ Part 2: PRTTGRFPB
 
 ## [Day 6: Tuning Trouble](https://adventofcode.com/2022/day/6)
 
-* 📄 [src/05_supply-stacks/index.ts](./src/05_supply-stacks/index.ts)
+* 📄 [src/06_tuning-trouble/index.ts](./src/06_tuning-trouble/index.ts)
 
 ```
 $ npx ts-node src/06_tuning-trouble
@@ -262,4 +262,18 @@ $ npx ts-node src/19_not-enough-minerals
 
 Part 1: the sum of quality levels is 978
 Part 2: largest geodes multiplied together are 15939
+```
+
+
+## [Day 20: Grove Positioning System](https://adventofcode.com/2022/day/20)
+
+* 📄 [src/20_grove-positioning-system/index.ts](./src/20_grove-positioning-system/index.ts)
+* 📄 [src/20_grove-positioning-system/mixer.ts](./src/20_grove-positioning-system/mixer.ts)
+* 📄 [src/20_grove-positioning-system/mixer.test.ts](./src/20_grove-positioning-system/mixer.test.ts)
+
+```
+$ npx ts-node src/20_grove-positioning-system
+
+Part 1: the sum of coordinates is 13522
+Part 2: the sum of coordinates is 17113168880158
 ```
