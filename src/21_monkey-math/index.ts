@@ -16,23 +16,23 @@ const monkeysAndEquations = splitStringMatrix(puzzleInput, '\n', ': ');
 monkeysAndEquations.forEach(([id, equation]) => monkeys.set(id, equation));
 
 /**
- * Recursively solves the given equation which may be the id of a single monkey,
- * an addition, subtraction, multiplication or division between two monkey id's
- * or a constant number value.
+ * Recursively builds a string equation from given input, which may be the id of a
+ * single monkey, an addition, subtraction, multiplication or division between two
+ * monkey id's or a constant number value.
  */
-function resolve(operation: string): string {
+function buildEquation(operation: string): string {
     // if operation is an equation, solve both sides recursively:
     if (operation.includes(' ')) {
         let [left, operand, right] = operation.split(' ') as [string, string, string];
-        return `(${resolve(left)} ${operand} ${resolve(right)})`;
+        return `(${buildEquation(left)} ${operand} ${buildEquation(right)})`;
     }
 
     // if operation is the id of a monkey, solve its equation recursively:
     if (monkeys.has(operation)) {
-        return resolve(monkeys.get(operation) as string);
+        return buildEquation(monkeys.get(operation) as string);
     }
 
-    // must be a constant or unknown monkey
+    // must be a constant or unknown monkey, return as is
     return operation;
 }
 
@@ -48,53 +48,59 @@ function solveHuman(monkeyId: string, answer: number = 0): number {
     }
 
     let equation = monkeys.get(monkeyId) as string;
-    let [left, op, right] = equation.split(' ') as [string, string, string];
+    let [leftMonkey, op, rightMonkey] = equation.split(' ') as [string, string, string];
 
     // try solving both sides of the equation individually:
-    let leftEquation = resolve(left);
-    let rightEquation = resolve(right);
+    let leftEquation = buildEquation(leftMonkey);
+    let rightEquation = buildEquation(rightMonkey);
 
     // If the left side of equation contains the "humn" variable, the right side must
     // have a constant value. Use the constant and known answer to recursively solve "humn".
     if (leftEquation.includes('humn')) {
-        let rightValue = eval(rightEquation);
+        let constant = eval(rightEquation);
         switch (op) {
             case '=':
-                return solveHuman(left, rightValue);
+                return solveHuman(leftMonkey, constant);
             case '+':
-                return solveHuman(left, answer - rightValue);
+                return solveHuman(leftMonkey, answer - constant);
             case '-':
-                return solveHuman(left, answer + rightValue);
+                return solveHuman(leftMonkey, answer + constant);
             case '*':
-                return solveHuman(left, answer / rightValue);
+                return solveHuman(leftMonkey, answer / constant);
             case '/':
-                return solveHuman(left, answer * rightValue);
+                return solveHuman(leftMonkey, answer * constant);
             default:
-                throw new Error(monkeyId);
+                throw new Error(`Unsupported operation ${op} for ${monkeyId}`);
         }
     }
 
     // The right side of equation contains the "humn" variable and the left side
     // has a constant value. Use the left value and known answer to recursively solve "humn".
-    let leftValue = eval(leftEquation);
+    let constant = eval(leftEquation);
     switch (op) {
         case '=':
-            return solveHuman(right, leftValue);
+            return solveHuman(rightMonkey, constant);
         case '+':
-            return solveHuman(right, answer - leftValue);
+            return solveHuman(rightMonkey, answer - constant);
         case '-':
-            return solveHuman(right, leftValue - answer);
+            return solveHuman(rightMonkey, constant - answer);
         case '*':
-            return solveHuman(right, answer / leftValue);
+            return solveHuman(rightMonkey, answer / constant);
         case '/':
-            return solveHuman(right, leftValue / answer);
+            return solveHuman(rightMonkey, constant / answer);
         default:
-            throw new Error(monkeyId);
+            throw new Error(`Unsupported operation ${op} for ${monkeyId}`);
     }
 }
 
 function main() {
-    console.log('Part 1: the monkey named root will yell', eval(resolve('root')));
+    /*
+     * Part 1:
+     * "Your job is to work out the number the monkey named root
+     * will yell before the monkeys figure it out themselves."
+     */
+    let rootEquation = buildEquation('root');
+    console.log('Part 1: the monkey named root will yell', eval(rootEquation));
 
     /*
      * Part 2:
