@@ -284,6 +284,7 @@ Part 2: the sum of coordinates is 17113168880158
 
 ```
 $ npx ts-node src/21_monkey-math
+
 Part 1: the monkey named root will yell 82225382988628
 Part 2: the number to yell to pass root's equality test is 3429411069028
 ```
