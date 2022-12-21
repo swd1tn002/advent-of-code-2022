@@ -277,3 +277,13 @@ $ npx ts-node src/20_grove-positioning-system
 Part 1: the sum of coordinates is 13522
 Part 2: the sum of coordinates is 17113168880158
 ```
+
+## [Day 21: Monkey Math](https://adventofcode.com/2022/day/21)
+
+* 📄 [src/21_monkey-math/index.ts](./src/21_monkey-math/index.ts)
+
+```
+$ npx ts-node src/21_monkey-math
+Part 1: the monkey named root will yell 82225382988628
+Part 2: the number to yell to pass root's equality test is 3429411069028
+```
