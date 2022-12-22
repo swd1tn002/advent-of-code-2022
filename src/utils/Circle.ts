@@ -4,7 +4,7 @@
  */
 export default class Circle<T> {
 
-    constructor(private content: T[]) { }
+    constructor(readonly content: T[]) { }
 
     /**
      * Gets the element from given index. Negative indices also supported.
