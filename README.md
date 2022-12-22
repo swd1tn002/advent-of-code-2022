@@ -288,3 +288,22 @@ $ npx ts-node src/21_monkey-math
 Part 1: the monkey named root will yell 82225382988628
 Part 2: the number to yell to pass root's equality test is 3429411069028
 ```
+
+
+## [Day 22: Monkey Map](https://adventofcode.com/2022/day/22)
+
+* 📄 [src/22_monkey-map/part1.ts](./src/22_monkey-map/part1.ts)
+
+```
+$ npx ts-node src/22_monkey-map/part1.ts
+
+Part 1: the password is 165094
+```
+
+* 📄 [src/22_monkey-map/part2.ts](./src/22_monkey-map/part2.ts)
+
+```
+$ npx ts-node src/22_monkey-map/part2.ts
+
+Part 2: the password is 95316
+```
