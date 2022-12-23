@@ -82,7 +82,7 @@ let rules = [
 
 let elves = getElves(puzzleInput);
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; true; i++) {
     let occupied = new Set(elves.map(e => e.position.toString()));
     let proposals: { [key: string]: Elf | null } = {};
 
@@ -111,12 +111,16 @@ for (let i = 0; i < 10; i++) {
      * tile if they were the only Elf to propose moving to that position.If two or
      * more Elves propose moving to the same position, none of those Elves move.*/
 
-    Object.entries(proposals)
-        .filter(([vector, elf]) => elf !== null)
-        .forEach(([vector, elf]) => {
-            let v = Vector.parse(vector);
-            elf!.position = v;
-        });
+    let moves = Object.entries(proposals).filter(([vector, elf]) => elf !== null);
+
+    if (moves.length === 0) {
+        console.log(`No moves after ${i + 1} rounds!`);
+        process.exit(0);
+    }
+    moves.forEach(([vector, elf]) => {
+        let v = Vector.parse(vector);
+        elf!.position = v;
+    });
 
     /** at the end of the round, the first direction the Elves considered is moved to the end of the list of directions. */
     let first = rules.shift()!;
