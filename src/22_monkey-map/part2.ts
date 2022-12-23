@@ -129,26 +129,26 @@ class MonkeyCube {
         // current side and the cube needs to be rotated.
         let currentSide = this.getSide([y, x]);
 
-        let n: Neighbor = currentSide.right as Neighbor;
+        let next: Neighbor = currentSide.right!;
         switch (this.direction) {
             case RIGHT:
-                n = currentSide.right as Neighbor;
+                next = currentSide.right!;
                 break;
 
             case DOWN:
-                n = currentSide.down as Neighbor
+                next = currentSide.down!;
                 break;
 
             case LEFT:
-                n = currentSide.left as Neighbor
+                next = currentSide.left!;
                 break;
 
             case UP:
-                n = currentSide.up as Neighbor
+                next = currentSide.up!;
                 break;
         }
 
-        return MonkeyCube.stepInAndRotate(this.direction, [y2, x2], currentSide, sides[n.id], n.rotation);
+        return MonkeyCube.stepInAndRotate(this.direction, [y2, x2], currentSide, sides[next.id], next.rotation);
     }
 
     /** Returns the side where given coordinates are located. */
@@ -187,17 +187,11 @@ class MonkeyCube {
     /** Rotates the given edge coordinates counterclocwise around the edge of a single cube side. */
     private static rotateLeft(coord: Coord): Coord {
         let [y, x] = coord;
-        if (y === 0) {
-            return [MonkeyCube.width - x - 1, 0];
+        if (y === 0 || y === MonkeyCube.width - 1) {
+            return [MonkeyCube.width - x - 1, y];
         }
-        if (y === MonkeyCube.width - 1) {
-            return [MonkeyCube.width - x - 1, MonkeyCube.width - 1];
-        }
-        if (x === 0) {
-            return [MonkeyCube.width - 1, y];
-        }
-        if (x === MonkeyCube.width - 1) {
-            return [0, y];
+        if (x === 0 || x === MonkeyCube.width - 1) {
+            return [MonkeyCube.width - 1 - x, y];
         }
         throw new Error(`Could not rotate ${coord}`);
     }

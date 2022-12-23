@@ -24,6 +24,9 @@ class Elf {
     constructor(public position: Vector) { }
 }
 
+type ElvesWithProposals = [Elf, Vector][];
+type MoveProposalFunction = (elf: Elf, occupied: Set<string>) => Vector | null;
+
 /**
  * "The scan shows Elves # and empty ground .; outside your scan, more empty ground extends a long
  * way in every direction."
@@ -45,20 +48,29 @@ function parseElves(input: string): Elf[] {
 /**
  * "If there is no Elf in the given adjacent positions,
  * the Elf proposes moving to the given direction one step."
+ *
+ * @returns a function that can be called for all elves. The function checks whether
+ *          the adjacent vectors have neighbors in them, and if not, suggests to move.
  */
-function makeMoveFunction(adjacents: Vector[], suggestDirection: Vector): MoveProposalFunction {
-    return (elf: Elf, occupied: Set<string>) => {
-        // finds if adjacents in given directions are empty using the 'occupied' set
-        let adjacentsEmpty = adjacents.every(adjacent => {
-            return !occupied.has(`${elf.position.plus(adjacent)}`);
+function makeMoveFunction(directions: Vector[], suggestDirection: Vector): MoveProposalFunction {
+
+    return (elf: Elf, elfPositions: Set<string>) => {
+
+        // finds if neighbors in given directions are empty using the given set of positions
+        let adjacentsEmpty = directions.every(direction => {
+            return !elfPositions.has(`${elf.position.plus(direction)}`);
         });
 
-        // true if the suggestion is actually made, and the suggested next position
-        return [adjacentsEmpty, elf.position.plus(suggestDirection)];
+        // return suggestion if one should be made
+        if (adjacentsEmpty) {
+            return elf.position.plus(suggestDirection);
+        }
+
+        // some of the directions is occupied, do not make this move
+        return null;
     }
 }
 
-type MoveProposalFunction = (elf: Elf, occupied: Set<string>) => [boolean, Vector];
 
 
 /**
@@ -66,64 +78,99 @@ type MoveProposalFunction = (elf: Elf, occupied: Set<string>) => [boolean, Vecto
  * you can speed up this process considerably. The process consists of some number of
  * rounds during which Elves alternate between considering where to move and actually
  * moving"
+ *
+ * @returns the count of rounds when the elves actually moved
  */
-function moveElves(elves: Elf[], rounds: number, rules: (MoveProposalFunction)[]): number {
-    /* "If no other Elves are in one of those eight positions, the Elf does not do anything during this round." */
-    const firstRule = makeMoveFunction([N, E, S, W, NE, SE, NW, SW], CENTER);
+function moveElves(elves: Elf[], rounds: number, givenRules: MoveProposalFunction[]): number {
 
+    // make copy of the rules array, so it can be modified without side effects:
+    let rules = [...givenRules];
+
+    /* "After each Elf has had a chance to propose a move, the second half of the
+     * round can begin.Simultaneously, each Elf moves to their proposed destination
+     * tile if they were the only Elf to propose moving to that position. If two or
+     * more Elves propose moving to the same position, none of those Elves move." */
     for (let i = 0; i < rounds; i++) {
-        let occupied = new Set(elves.map(e => e.position.toString()));
-        let proposals: { [key: string]: Elf | null } = {};
+        let proposals = proposeMoves(elves, rules);
 
-        elves.forEach((elf) => {
-            let [noNeighbors, _] = firstRule(elf, occupied);
-            if (noNeighbors) {
-                return;
-            }
 
-            /* "Otherwise, the Elf looks in each of four directions in the following order and proposes moving one step in the first valid direction" */
-            for (let rule of rules) {
-                let [ok, destination] = rule(elf, occupied);
-
-                if (ok) {
-                    let v = destination.toString();
-                    // proposed by another elf, so neither can move there
-                    proposals[v] = (v in proposals) ? null : elf;
-                    return;
-                }
-            }
-        });
-
-        /* After each Elf has had a chance to propose a move, the second half of the
-        * round can begin.Simultaneously, each Elf moves to their proposed destination
-        * tile if they were the only Elf to propose moving to that position.If two or
-        * more Elves propose moving to the same position, none of those Elves move.*/
-
-        let moves = Object.entries(proposals).filter(([vector, elf]) => elf !== null);
-
-        if (moves.length === 0) {
+        if (proposals.length === 0) {
             return i + 1;
         }
 
-        moves.forEach(([vector, elf]) => {
-            let v = Vector.parse(vector);
-            elf!.position = v;
+        proposals.forEach(([elf, position]) => {
+            elf.position = position;
         });
 
-        /** at the end of the round, the first direction the Elves considered is moved to the end of the list of directions. */
+        /* "At the end of the round, the first direction the Elves considered is moved
+         * to the end of the list of directions. " */
         let first = rules.shift()!;
         rules.push(first);
     }
+
     return rounds;
 }
 
+/**
+ * "Each Elf considers the eight positions adjacent to themself. If no other Elves are
+ * in one of those eight positions, the Elf does not do anything during this round.
+ * Otherwise, the Elf looks in each of four directions in the following order and
+ * proposes moving one step in the first valid direction."
+ */
+function proposeMoves(elves: Elf[], rules: MoveProposalFunction[]): ElvesWithProposals {
+    const noNeighborsNoMove = makeMoveFunction([N, E, S, W, NE, SE, NW, SW], CENTER);
+
+    let currentPositions = new Set(elves.map(e => e.position.toString()));
+
+    // `null` means that there are more than one elf that wishes to enter the tile
+    let proposals: { [tile: string]: Elf | null } = {};
+
+    elves.forEach((elf) => {
+        /* "If no other Elves are in one of those eight positions,
+         * the Elf does not do anything during this round." */
+        let noNeighbors = noNeighborsNoMove(elf, currentPositions);
+        if (noNeighbors) {
+            return;
+        }
+
+        /* "Otherwise, the Elf looks in each of four directions in the following
+         * order and proposes moving one step in the first valid direction" */
+        for (let rule of rules) {
+            let destination = rule(elf, currentPositions);
+
+            /* "Each Elf moves to their proposed destination
+            * tile if they were the only Elf to propose moving to that position. If two or
+            * more Elves propose moving to the same position, none of those Elves move."*/
+            if (destination) {
+                let v = destination.toString();
+
+                // if proposed by another elf, store `null`, so neither elf will move there
+                proposals[v] = (v in proposals) ? null : elf;
+
+                // this elf now has a proposal, so skip the next rules and continue with the next elf
+                return;
+            }
+        }
+    });
+
+    // build an array of tuples of elfs and their next coordinates
+    let result: ElvesWithProposals = [];
+    for (let [coord, elf] of Object.entries(proposals)) {
+        if (elf !== null) {
+            result.push([elf, Vector.parse(coord)]);
+        }
+    }
+
+    return result;
+}
+
+/**
+ * Part 1:
+ * "Simulate the Elves' process and find the smallest rectangle that contains the
+ * Elves after 10 rounds. How many empty ground tiles does that rectangle contain?"
+ */
 function part1() {
 
-    /**
-     * Part 1:
-     * "Simulate the Elves' process and find the smallest rectangle that contains the
-     * Elves after 10 rounds. How many empty ground tiles does that rectangle contain?"
-     */
     let elves = parseElves(puzzleInput);
 
     /*
@@ -148,12 +195,12 @@ function part1() {
     console.log(`Part 1: empty tiles in the rectangle:`, width * height - elves.length);
 }
 
+/**
+ * Part 2:
+ * "It seems you're on the right track. Finish simulating the process and figure out
+ * where the Elves need to go. How many rounds did you save them?"
+ */
 function part2() {
-    /**
-     * Part 2:
-     * "It seems you're on the right track. Finish simulating the process and figure out
-     * where the Elves need to go. How many rounds did you save them?"
-     */
     let elves = parseElves(puzzleInput);
 
     let rules = [
