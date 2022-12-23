@@ -307,3 +307,14 @@ $ npx ts-node src/22_monkey-map/part2.ts
 
 Part 2: the password is 95316
 ```
+
+## [Day 23: Unstable Diffusion](https://adventofcode.com/2022/day/23)
+
+* 📄 [src/23_unstable-diffusion/index.ts](./src/23_unstable-diffusion/index.ts)
+
+```
+$ npx ts-node src/23_unstable-diffusion
+
+Part 1: empty tiles in the rectangle: 3864
+Part 2: elves stop moving after 946 rounds
+```
