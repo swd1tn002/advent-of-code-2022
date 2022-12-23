@@ -4,8 +4,17 @@ export const max = (arr: number[]): number => arr.reduce((maximum, curr) => maxi
 
 export const min = (arr: number[]): number => arr.reduce((minimum, curr) => minimum < curr ? minimum : curr, arr[0] ?? 0);
 
+export const empty = (arr: any[]): boolean => arr.length === 0;
+
+export function first<T>(arr: T[]): T {
+    if (empty(arr)) {
+        throw new Error(`Cannot get first from empty array`);
+    }
+    return arr[0];
+}
+
 export function last<T>(arr: T[]): T {
-    if (arr.length === 0) {
+    if (empty(arr)) {
         throw new Error(`Cannot get last from empty array`);
     }
     return arr[arr.length - 1];
@@ -19,6 +28,23 @@ export function last<T>(arr: T[]): T {
  */
 export function sortNumbers(arr: number[]): number[] {
     return [...arr].sort((a, b) => a - b);
+}
+
+export function minAndMax(numbers: number[]): [number, number] {
+    if (empty(numbers)) {
+        throw new Error(`Cannot get min and max from empty array`);
+    }
+    let min = numbers[0];
+    let max = numbers[0];
+    numbers.forEach(n => {
+        if (n < min) {
+            min = n;
+        }
+        if (n > max) {
+            max = n;
+        }
+    });
+    return [min, max];
 }
 
 // https://stackoverflow.com/a/55435856

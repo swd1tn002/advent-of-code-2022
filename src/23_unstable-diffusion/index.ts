@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFileSync } from 'fs';
 import { splitStringMatrix } from '../utils/strings';
-import { last, sortNumbers } from '../utils/arrays';
+import { last, empty, sortNumbers, first, minAndMax } from '../utils/arrays';
 import { Vector } from '../utils/Vector';
 
 const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
@@ -27,6 +27,7 @@ class Elf {
 type ElvesWithProposals = [Elf, Vector][];
 type MoveProposalFunction = (elf: Elf, occupied: Set<string>) => Vector | null;
 
+
 /**
  * "The scan shows Elves # and empty ground .; outside your scan, more empty ground extends a long
  * way in every direction."
@@ -44,6 +45,21 @@ function parseElves(input: string): Elf[] {
     }
     return elves;
 }
+
+
+/**
+ * "If there is no Elf in the N, NE, or NW adjacent positions, the Elf proposes moving north one step.
+ * If there is no Elf in the S, SE, or SW adjacent positions, the Elf proposes moving south one step.
+ * If there is no Elf in the W, NW, or SW adjacent positions, the Elf proposes moving west one step.
+ * If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes moving east one step."
+ */
+function getRulesForMoving(): readonly MoveProposalFunction[] {
+    return Object.freeze([
+        makeMoveFunction([N, NE, NW], N), makeMoveFunction([S, SE, SW], S),
+        makeMoveFunction([W, NW, SW], W), makeMoveFunction([E, NE, SE], E),
+    ]);
+}
+
 
 /**
  * "If there is no Elf in the given adjacent positions,
@@ -72,7 +88,6 @@ function makeMoveFunction(directions: Vector[], suggestDirection: Vector): MoveP
 }
 
 
-
 /**
  * "The Elves follow a time-consuming process to figure out where they should each go;
  * you can speed up this process considerably. The process consists of some number of
@@ -81,7 +96,7 @@ function makeMoveFunction(directions: Vector[], suggestDirection: Vector): MoveP
  *
  * @returns the count of rounds when the elves actually moved
  */
-function moveElves(elves: Elf[], rounds: number, givenRules: MoveProposalFunction[]): number {
+function moveElves(elves: Elf[], maxRounds: number, givenRules: readonly MoveProposalFunction[]): number {
 
     // make copy of the rules array, so it can be modified without side effects:
     let rules = [...givenRules];
@@ -90,11 +105,10 @@ function moveElves(elves: Elf[], rounds: number, givenRules: MoveProposalFunctio
      * round can begin.Simultaneously, each Elf moves to their proposed destination
      * tile if they were the only Elf to propose moving to that position. If two or
      * more Elves propose moving to the same position, none of those Elves move." */
-    for (let i = 0; i < rounds; i++) {
+    for (let i = 0; i < maxRounds; i++) {
         let proposals = proposeMoves(elves, rules);
 
-
-        if (proposals.length === 0) {
+        if (empty(proposals)) {
             return i + 1;
         }
 
@@ -108,7 +122,7 @@ function moveElves(elves: Elf[], rounds: number, givenRules: MoveProposalFunctio
         rules.push(first);
     }
 
-    return rounds;
+    return maxRounds;
 }
 
 /**
@@ -117,7 +131,7 @@ function moveElves(elves: Elf[], rounds: number, givenRules: MoveProposalFunctio
  * Otherwise, the Elf looks in each of four directions in the following order and
  * proposes moving one step in the first valid direction."
  */
-function proposeMoves(elves: Elf[], rules: MoveProposalFunction[]): ElvesWithProposals {
+function proposeMoves(elves: Elf[], rulesForMoving: MoveProposalFunction[]): ElvesWithProposals {
     const noNeighborsNoMove = makeMoveFunction([N, E, S, W, NE, SE, NW, SW], CENTER);
 
     let currentPositions = new Set(elves.map(e => e.position.toString()));
@@ -135,14 +149,14 @@ function proposeMoves(elves: Elf[], rules: MoveProposalFunction[]): ElvesWithPro
 
         /* "Otherwise, the Elf looks in each of four directions in the following
          * order and proposes moving one step in the first valid direction" */
-        for (let rule of rules) {
-            let destination = rule(elf, currentPositions);
+        for (let ruleFunc of rulesForMoving) {
+            let proposal: Vector | null = ruleFunc(elf, currentPositions);
 
             /* "Each Elf moves to their proposed destination
-            * tile if they were the only Elf to propose moving to that position. If two or
-            * more Elves propose moving to the same position, none of those Elves move."*/
-            if (destination) {
-                let v = destination.toString();
+             * tile if they were the only Elf to propose moving to that position. If two or
+             * more Elves propose moving to the same position, none of those Elves move." */
+            if (proposal !== null) {
+                let v = proposal.toString();
 
                 // if proposed by another elf, store `null`, so neither elf will move there
                 proposals[v] = (v in proposals) ? null : elf;
@@ -172,25 +186,15 @@ function proposeMoves(elves: Elf[], rules: MoveProposalFunction[]): ElvesWithPro
 function part1() {
 
     let elves = parseElves(puzzleInput);
-
-    /*
-     * "If there is no Elf in the N, NE, or NW adjacent positions, the Elf proposes moving north one step.
-     * If there is no Elf in the S, SE, or SW adjacent positions, the Elf proposes moving south one step.
-     * If there is no Elf in the W, NW, or SW adjacent positions, the Elf proposes moving west one step.
-     * If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes moving east one step."
-     */
-    let rules = [
-        makeMoveFunction([N, NE, NW], N), makeMoveFunction([S, SE, SW], S),
-        makeMoveFunction([W, NW, SW], W), makeMoveFunction([E, NE, SE], E),
-    ];
+    let rules = getRulesForMoving();
 
     moveElves(elves, 10, rules);
 
-    let x = sortNumbers(elves.map(e => e.position.x));
-    let width = last(x) - x[0] + 1;
+    let [minX, maxX] = minAndMax(elves.map(e => e.position.x));
+    let [minY, maxY] = minAndMax(elves.map(e => e.position.y));
 
-    let y = sortNumbers(elves.map(e => e.position.y));
-    let height = last(y) - y[0] + 1;
+    let width = maxX - minX + 1;
+    let height = maxY - minY + 1;
 
     console.log(`Part 1: empty tiles in the rectangle:`, width * height - elves.length);
 }
@@ -203,10 +207,7 @@ function part1() {
 function part2() {
     let elves = parseElves(puzzleInput);
 
-    let rules = [
-        makeMoveFunction([N, NE, NW], N), makeMoveFunction([S, SE, SW], S),
-        makeMoveFunction([W, NW, SW], W), makeMoveFunction([E, NE, SE], E),
-    ];
+    let rules = getRulesForMoving();
 
     let rounds = moveElves(elves, Infinity, rules);
 
