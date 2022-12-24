@@ -1,7 +1,7 @@
 import path from 'path';
 import { readFileSync } from 'fs';
-import { splitLines, splitStringMatrix, splitNumberMatrix, extractNumber, extractNumbers } from '../utils/strings';
-import { sum, first, last, max, min, reverseRows, sortNumbers, splitToChunks, transpose, empty } from '../utils/arrays';
+import { splitStringMatrix, } from '../utils/strings';
+import { first, last } from '../utils/arrays';
 import Circle from '../utils/Circle';
 
 
