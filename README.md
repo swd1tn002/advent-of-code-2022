@@ -318,3 +318,14 @@ $ npx ts-node src/23_unstable-diffusion
 Part 1: empty tiles in the rectangle: 3864
 Part 2: elves stop moving after 946 rounds
 ```
+
+## [Day 24: Blizzard Basin](https://adventofcode.com/2022/day/24)
+
+* 📄 [src/24_blizzard-basin/index.ts](./src/24_blizzard-basin/index.ts)
+
+```
+$ npx ts-node src/24_blizzard-basin
+
+Part 1: the fewest number of minutes required is 292.
+Part 2: the fewest number of minutes required is 816.
+```

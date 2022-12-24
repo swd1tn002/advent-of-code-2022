@@ -10,6 +10,10 @@ const puzzleInput = readFileSync(path.join(__dirname, 'input.txt'), 'utf-8');
 type Direction = '^' | 'v' | '<' | '>';
 type TimeAndLocation = [number, Coord];
 
+/**
+ * "blizzards are drawn with an arrow indicating their direction of motion:
+ * up (^), down (v), left (<), or right (>)."
+ */
 const moves = Object.freeze({
     '<': [0, -1],
     '>': [0, 1],
@@ -44,148 +48,181 @@ class Coord {
 }
 
 class Blizzard {
-    coords: Circle<Coord>;
+    readonly path: Circle<Coord>;
 
-    constructor(
-        readonly char: Direction,
-        start: Coord,
-        map: Map) {
-
-        let all = [start];
-        let [dY, dX] = moves[char];
-        let next = start;
-
-        while (true) {
-            let y = (dY + next.y + map.height) % map.height;
-            let x = (dX + next.x + map.width) % map.width;
-
-            next = new Coord(y, x);
-            if (next.eq(start)) {
-                break;
-            }
-
-            if (map.grid[y][x] !== '#') {
-                all.push(next);
-            }
-        }
-
-        this.coords = new Circle(all);
+    constructor(readonly char: Direction, readonly start: Coord, readonly map: Map) {
+        this.path = this.buildPath();
     }
 
+    /** Returns the position of this blizzard at the given time. */
     position(time: number) {
-        return this.coords.get(time);
+        return this.path.get(time);
+    }
+
+    /** Builds a circular array of positions which this blizzard loops through. */
+    private buildPath() {
+        let [dY, dX] = moves[this.char];
+        let path = new Array<Coord>();
+
+        /* "Due to conservation of blizzard energy, as a blizzard reaches
+        * the wall of the valley, a new blizzard forms on the opposite side
+        * of the valley moving in the same direction. " */
+        let next = this.start;
+        do {
+            if (!this.map.hasWall(next)) {
+                path.push(next);
+            }
+
+            let y = (dY + next.y + this.map.height) % this.map.height;
+            let x = (dX + next.x + this.map.width) % this.map.width;
+
+            next = new Coord(y, x);
+        } while (!next.eq(this.start));
+
+        return new Circle(path);
     }
 }
 
+/**
+ * "As the expedition reaches a valley that must be traversed to reach the extraction
+ * site, you find that strong, turbulent winds are pushing small blizzards of snow and
+ * sharp ice around the valley."
+ */
 class Map {
-    walls: Set<string> = new Set();
     readonly start: Coord;
     readonly end: Coord;
-    readonly blizzards: Blizzard[] = [];
+    readonly blizzards: Blizzard[];
     readonly height: number;
     readonly width: number;
 
     constructor(readonly grid: string[][]) {
-
-        this.start = new Coord(0, first(grid).indexOf('.'));
-        this.end = new Coord(grid.length - 1, last(grid).indexOf('.'));
-
         this.height = grid.length;
         this.width = grid[0].length;
+
+        /* "Your expedition begins in the only non-wall position in the top row
+         * and needs to reach the only non-wall position in the bottom row." */
+        this.start = new Coord(0, first(grid).indexOf('.'));
+        this.end = new Coord(this.height - 1, last(grid).indexOf('.'));
+
+        this.blizzards = this.createBlizzards(grid);
+    }
+
+    has(coord: Coord): boolean {
+        return (0 <= coord.x && coord.x < this.width && 0 <= coord.y && coord.y < this.height);
+    }
+
+    /** "The walls of the valley are drawn as #; everything else is ground." */
+    hasWall(c: Coord): boolean {
+        return this.grid[c.y][c.x] === '#';
+    }
+
+    /**
+     * "Blizzards are drawn with an arrow indicating their direction of motion:
+     * up (^), down (v), left (<), or right (>)."
+     */
+    private createBlizzards(grid: string[][]): Blizzard[] {
+        let blizzards = new Array<Blizzard>();
 
         grid.forEach((row, y) => {
             row.forEach((char, x) => {
                 let coord = new Coord(y, x);
                 switch (char) {
-                    case '#':
-                        this.walls.add(coord.str);
-                        break;
                     case '<':
                     case '>':
                     case '^':
                     case 'v':
-                        this.blizzards.push(new Blizzard(char, coord, this));
+                        blizzards.push(new Blizzard(char, coord, this));
                         break;
+                    case '#':
                     case '.':
-                        break; // empty
+                        // walls and empty spots
+                        break;
                     default:
                         throw new Error(`Unknown character ${char}`);
                 }
             });
         });
-        Object.freeze(this.blizzards);
-        Object.freeze(this.walls);
+        return blizzards;
     }
 }
 
+class TimeAndLocationQueue {
+    readonly visited: Set<string> = new Set();
+    readonly queue: TimeAndLocation[] = [];
+    private readonly keysInQueue: Set<string> = new Set();
 
+    /** Returns and removes the next TimeAndLocation from the queue. */
+    pop() {
+        let n = this.queue.reduce((min, current) => min[0] < current[0] ? min : current, first(this.queue));
+        this.queue.splice(this.queue.indexOf(n), 1);
 
-function findWayToEnd(map: Map, time: number, from: Coord, to: Coord): number {
-    // initially just the starting location
-    let queue: TimeAndLocation[] = [[time, from]];
-    let visited = new Set<string>();
-    let lastTime = time;
+        let key = this.key(n);
+        this.keysInQueue.delete(key);
+        this.visited.add(key);
+        return n;
+    }
 
-    while (!empty(queue)) {
-        let next = queue.reduce((min, current) => min[0] < current[0] ? min : current, first(queue));
-        queue.splice(queue.indexOf(next), 1);
+    add(timeAndLoc: TimeAndLocation) {
+        let key = this.key(timeAndLoc);
 
-        let [time, location] = next;
-        let key = `${location.str},${time}`;
-
-        if (time !== lastTime) {
-            console.log({ time, location });
+        // add to queue only if the time and location is not visited nor queued
+        if (!this.visited.has(key) && !this.keysInQueue.has(key)) {
+            this.queue.push(timeAndLoc);
+            this.keysInQueue.add(key);
         }
-        lastTime = time;
+    }
 
-        if (visited.has(key)) {
-            continue;
-        }
-        visited.add(key);
+    isEmpty(): boolean {
+        return this.queue.length === 0;
+    }
+
+    private key(timeAndLoc: TimeAndLocation) {
+        return `${timeAndLoc[1].str},${timeAndLoc[0]}`;
+
+    }
+}
+
+function findWayAndAvoidBlizzards(map: Map, time: number, from: Coord, to: Coord): number {
+    let queue = new TimeAndLocationQueue();
+    queue.add([time, from]);
+
+    while (!queue.isEmpty()) {
+        let [time, location] = queue.pop();
 
         if (location.eq(to)) {
             return time;
         }
-        // hit wall?
-        if (map.walls.has(location.str)) {
+
+        if (map.hasWall(location)) {
             continue;
         }
 
-        // hit blizzard?
-        let blizzard = map.blizzards.some(blizzard => blizzard.position(time).eq(location));
-        if (blizzard) {
+        if (map.blizzards.some(blizzard => blizzard.position(time).eq(location))) {
             continue;
         }
 
-        if (location.y < map.height) {
-            queue.push([time + 1, location.down]); // down
-        }
+        // Get all adjacent positions (and the current position) that are on the map.
+        let directions = [
+            location.down, location.up, location.left, location.right, location
+        ].filter(c => map.has(c));
 
-        if (location.x < map.width - 2) {
-            queue.push([time + 1, location.right]); // right
-        }
-
-        if (location.x > 1) {
-            queue.push([time + 1, location.left]); // left
-        }
-
-        queue.push([time + 1, location]); // still
-
-        if (location.y > 0) {
-            queue.push([time + 1, location.up]); // up
-        }
+        // Continue expanding to all directions (and standing still) with the next timestamp
+        directions.forEach(coord => queue.add([time + 1, coord]));
     }
-    return -1;
+
+    throw new Error(`Could not find route from ${from} to ${to}.`);
 }
 
 function main() {
     let grid = splitStringMatrix(puzzleInput, '\n', '');
     let map = new Map(grid);
 
-    let part1 = findWayToEnd(map, 0, map.start, map.end); // 292
-    let part2a = findWayToEnd(map, part1, map.end, map.start); // 533
-    let part2b = findWayToEnd(map, part2a, map.start, map.end); // 816
-    console.log({ part1, part2a, part2b });
+    let part1 = findWayAndAvoidBlizzards(map, 0, map.start, map.end); // 292
+    console.log(`Part 1: the fewest number of minutes required is ${part1}.`);
+
+    let part2a = findWayAndAvoidBlizzards(map, part1, map.end, map.start); // 533
+    let part2b = findWayAndAvoidBlizzards(map, part2a, map.start, map.end); // 816
+    console.log(`Part 2: the fewest number of minutes required is ${part2b}.`)
 }
 
 main();
