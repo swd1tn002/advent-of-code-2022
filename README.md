@@ -329,3 +329,15 @@ $ npx ts-node src/24_blizzard-basin
 Part 1: the fewest number of minutes required is 292.
 Part 2: the fewest number of minutes required is 816.
 ```
+
+
+## [Day 25: Full of Hot Air](https://adventofcode.com/2022/day/25)
+
+* 📄 [src/25_full-of-hot-air/index.ts](./src/25_full-of-hot-air/index.ts)
+
+```
+$ npx ts-node src/25_full-of-hot-air
+
+The sum of numbers in decimal is 28115957264952
+The sum of numbers in SNAFU is 122-12==0-01=00-0=02
+```
