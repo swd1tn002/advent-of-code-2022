@@ -40,10 +40,10 @@ function toSnafu(num: number): string {
 }
 
 function main() {
-    let decimal = sum(splitLines(puzzleInput).map(parseSnafu));
+    let decimalSum = sum(splitLines(puzzleInput).map(parseSnafu));
 
-    console.log('The sum of numbers in decimal is', decimal); // 28115957264952
-    console.log('The sum of numbers in SNAFU is', toSnafu(decimal)); // 122-12==0-01=00-0=02
+    console.log('The sum of numbers in decimal is', decimalSum); // 28115957264952
+    console.log('The sum of numbers in SNAFU is', toSnafu(decimalSum)); // 122-12==0-01=00-0=02
 }
 
 main();
